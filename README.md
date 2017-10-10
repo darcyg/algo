@@ -5,7 +5,7 @@
   
   
 ## md5:  
-  * 加密:
+  * 加密:  
   const char *str = "hello";  
   char out[16];  
   algo_Md5Encode(str, strlen(str), out);  
