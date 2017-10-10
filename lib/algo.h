@@ -11,7 +11,7 @@
  * 
  * @return 返回计算编码后字节长度
  */
-int algo_Base64EncodeLen(int len);'
+int algo_Base64EncodeLen(int len);
 
 
 /* algo_Base64Encode 

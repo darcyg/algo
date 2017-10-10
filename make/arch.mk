@@ -26,6 +26,7 @@ TARGET_CFLAGS 		+= -Wall -g -O2
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/base64 
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/md5
+TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/3des-ecb
 TARGET_CFLAGS 		+= $(CROSS_CFLAGS)
 TARGET_CXXFLAGS 	+= $(TARGET_CFLAGS) -std=c++0x
 
