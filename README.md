@@ -26,10 +26,10 @@
 		used time: 739 us
   
 ## Md5:  
-	* 加密:  
-  const char \*str = "hello";  
-  char out[16];  
-  algo\_Md5Encode(str, strlen(str), out);  
+	* 加密:   
+	const char \*str = "hello";  
+	char out[16];  
+	algo\_Md5Encode(str, strlen(str), out);  
 
 
 ## Base64:  
