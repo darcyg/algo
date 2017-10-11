@@ -78,12 +78,15 @@ void md5_test() {
 
 void triple_des_ecb_test() {
 	char *origin = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ";
+	//char *origin = "1234567";
+	//char *origin = "5140000000080401AEBFFFFFFFF7FBFE";
 	char enstr[256];
 	char destr[256];
 
 	long t1, t2, t3, t4;
 
 	algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");
+	//algo_3des_ecb_init("00000000000000000000000000000000");
 	
 	
 	t1 = current_system_time_us();

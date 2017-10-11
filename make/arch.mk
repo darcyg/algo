@@ -22,7 +22,7 @@ SIZE		?= $(CROSS)size
 LD			?= $(CROSS)ld
 MKDIR		?= mkdir -p
 
-TARGET_CFLAGS 		+= -Wall -g -O2 
+TARGET_CFLAGS 		+= -Wall -g -O2  -fPIC
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/base64 
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/md5
