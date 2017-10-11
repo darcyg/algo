@@ -5,7 +5,7 @@
   
 
 
-## TEST:  
+## Test:   
 	make run:  
 	
 	
@@ -25,22 +25,22 @@
 		decoded ---         < 01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ >
 		used time: 739 us
   
-## md5:  
-  * 加密:  
+## Md5:  
+	* 加密:  
   const char *str = "hello";  
   char out[16];  
   algo_Md5Encode(str, strlen(str), out);  
   
   
-## base64:  
-  * 编码:  
+## Base64:  
+	* 编码:  
     char buf[] = {'1', '2', '3', '4', '5', '6', '7'};  
     int len = algo_Base64EncodeLen(sizeof(buf));  
     char *out = malloc(len);  
     algo_Base64Encode(out, buf, sizeof(buf));  
     free(out);  
 
-  * 解码:  
+	* 解码:  
     int dlen = algo_Base64DecodeLen(out);  
     char *dout = malloc(dlen);  
     algo_Base64Decode(dout, out);  
