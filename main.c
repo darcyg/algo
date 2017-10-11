@@ -33,11 +33,11 @@ void base64_test() {
 	//char buf[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 	char buf[] = {'1', '2', '3', '4', '5', '6', '7'};
 	int len = algo_Base64EncodeLen(sizeof(buf));
-	char *out = (char *)malloc(len);
+	char *out = (char *)malloc(len+1);
 	algo_Base64Encode(out, buf, sizeof(buf));
 
 	int dlen = algo_Base64DecodeLen(out);
-	char *dout = (char *)malloc(dlen);
+	char *dout = (char *)malloc(dlen+1);
 	algo_Base64Decode(dout, out);
 	
 	printf("\n[Base64 Encode/Decode Test]:\n");
@@ -107,6 +107,8 @@ void triple_des_ecb_test() {
 	printf("%s", destr);
 	printf(" >\n");
 	printf("used time: %ld us\n", t4-t3);
+
+	algo_3des_ecb_free();
 	
 }
 
