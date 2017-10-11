@@ -1,7 +1,7 @@
 ROOTDIR=$(shell pwd)
 WORKDIR=$(ROOTDIR)/build
 
-targets		+= libalgo.a 
+targets		+= libalgo.so
 targets		+= test
 
 
@@ -22,18 +22,18 @@ algoobjs				:= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(algosrcs)))
 ## test :
 testsrcs				+= $(ROOTDIR)/main.c
 
-testobjs				:= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(testsrcs)))
-testobjs				+= $(ROOTDIR)/build/libalgo.a
+testsrcs				:= $(subst .cpp,.c,$(testsrcs))
+testobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(testsrcs)))
 
-	
+
 -include $(ROOTDIR)/make/arch.mk
 -include $(ROOTDIR)/make/rules.mk
 
-
-$(eval $(call LinkLia,libalgo.a,$(algoobjs)))
+$(eval $(call LinkLio,libalgo.so,$(algoobjs)))
 
 $(eval $(call LinkApp,test,$(testobjs)))
 
-run : 
-	$(ROOTDIR)/build/test
+
+run :  libalgo.so test
+	export LD_LIBRARY_PATH=./build/;./build/test
 

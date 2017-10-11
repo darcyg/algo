@@ -27,3 +27,14 @@
     
   
 ## 3DES-ECB: 
+	* 加密:  
+	char *origin = "hello";  
+	char enstr[128];  
+	algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");  
+	algo_3des_ecb_encrypt(origin, enstr);  
+
+	* 解密:  
+	char destr[128];  
+	algo_3des_ecb_decrypt(enstr, destr);  
+
+	

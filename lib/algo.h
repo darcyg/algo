@@ -1,6 +1,12 @@
 #ifndef __ALGO_H_
 #define __ALGO_H_
 
+
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
+
 /* base64 */
 
 /* algo_Base64EncodeLen
@@ -63,4 +69,17 @@ int algo_Base64Decode(char *bufplain, const char *bufcoded);
  * @return 返回0
  */
 int algo_Md5Encode(const char *bufplain, int len, char bufcoded[16]);
+
+
+
+/* 3des ecb */
+	void algo_3des_ecb_init(char *key);
+	int algo_3des_ecb_encrypt(char *str, char *enstr);
+	int algo_3des_ecb_decrypt(char *str, char *destr);
+	void algo_3des_ecb_free();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

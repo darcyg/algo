@@ -6,7 +6,19 @@
 
 using namespace std;
 
+/*
+const 
+class nullptr_t_t {
+	public:  
+    template<class T>          operator T*() const {return 0;}  
+    template<class C, class T>  operator T C::*() const { return 0; }  
+	private:  
+    void operator& () const; 
+} nullptr_t = {};
+//const nullptr_t_t nullptr;
+*/
 #define nullptr std::string("")
+
 
 //为了提高程序效率，把这两个位操作功能定义在宏。
 
@@ -159,4 +171,6 @@ public:
 	std::string desDecrypt(std::string str);
 
 };
+
+
 #endif //#ifndef _DES_H_

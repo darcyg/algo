@@ -86,6 +86,7 @@ KEYMODE Des::checkKey() {
 	if (deskey.length() != 0) {
 		if (deskey.length() != 32 && deskey.length() != 48) {
 			printf("key输入不正确，请输入32位key或者48位key");
+			printf("key len:%d, :[%s]\n", deskey.length(), deskey.c_str());
 			return KEY_ERROR;
 		}
 
@@ -112,6 +113,7 @@ KEYMODE Des::checkKey(std::string key) {
 
 	if (deskey.length() != 32 && deskey.length() != 48) {
 		printf("key输入不正确，请输入32位key或者48位key");
+		printf("key len:%d, :[%s]\n", deskey.length(), deskey.c_str());
 		return KEY_ERROR;
 	}
 
@@ -379,7 +381,7 @@ unsigned char* Des::str_to_hex(const std::string& str) {
 
 	std::stringstream ss;
 	ss << std::hex;
-	for (int i = 0; i != str.size() / 2; ++i) {
+	for (unsigned int i = 0; i != str.size() / 2; ++i) {
 		int val = 0;
 		ss << str.substr(i * 2, 2);
 		ss >> val;
