@@ -6,7 +6,7 @@
 
 
 ## Test:   
-	make run:  
+	make;make run:  
 	
 	
 		[Base64 Encode/Decode Test]:
