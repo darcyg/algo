@@ -27,11 +27,11 @@
   
 ## Md5:  
 	* 加密:  
-  const char *str = "hello";  
+  const char \*str = "hello";  
   char out[16];  
-  algo_Md5Encode(str, strlen(str), out);  
-  
-  
+  algo\_Md5Encode(str, strlen(str), out);  
+
+
 ## Base64:  
 	* 编码:  
     char buf[] = {'1', '2', '3', '4', '5', '6', '7'};  
