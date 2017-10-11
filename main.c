@@ -2,12 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
+
 #include "algo.h"
 
 void view_buf(char *buf, int len);
 void base64_test();
 void md5_test();
 void triple_des_ecb_test();
+long current_system_time_us();
 
 int main(int argc, char *argv[]) {
 
@@ -72,15 +77,23 @@ void md5_test() {
 
 
 void triple_des_ecb_test() {
-	char *origin = "hello";
-	char enstr[128];
-	char destr[128];
+	char *origin = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ";
+	char enstr[256];
+	char destr[256];
+
+	long t1, t2, t3, t4;
 
 	algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");
 	
+	
+	t1 = current_system_time_us();
 	algo_3des_ecb_encrypt(origin, enstr);
+	t2 = current_system_time_us();
 
+	t3 = current_system_time_us();
 	algo_3des_ecb_decrypt(enstr, destr);
+	t4 = current_system_time_us();
+
 	
 	printf("\n[3Des-Ecb Encode/DeCode Test]:\n");
 	printf("origin  ---         < ");
@@ -89,9 +102,11 @@ void triple_des_ecb_test() {
 	printf("coded   ---         < ");
 	printf("%s", enstr);
 	printf(" >\n");
+	printf("used time: %ld us\n", t2-t1);
 	printf("decoded ---         < ");
 	printf("%s", destr);
 	printf(" >\n");
+	printf("used time: %ld us\n", t4-t3);
 	
 }
 
@@ -104,4 +119,13 @@ void view_buf(char *buf, int len) {
 		}
 	}
 }
+
+long current_system_time_us() {
+	struct timespec ts;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+
+	return (ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
+}
+
 

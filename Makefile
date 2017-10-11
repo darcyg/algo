@@ -34,6 +34,6 @@ $(eval $(call LinkLio,libalgo.so,$(algoobjs)))
 $(eval $(call LinkApp,test,$(testobjs)))
 
 
-run :  libalgo.so test
-	export LD_LIBRARY_PATH=./build/;./build/test
+run :  
+	@export LD_LIBRARY_PATH=./build/;./build/test
 

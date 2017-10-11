@@ -3,6 +3,27 @@
 ## 概述:  
   这个算法库主要包含智能门禁系统中与WebService　接口对接时候用到的算法库,主要包括md5, base64及3DES-ECB
   
+
+
+## TEST:  
+	make run:  
+	
+	
+		[Base64 Encode/Decode Test]:
+		origin  ---        < [31] [32] [33] [34] [35] [36] [37]  >
+		coded   ---        < MTIzNDU2Nw== >
+		decoded ---        < [31] [32] [33] [34] [35] [36] [37]  >
+
+		[MD5 Encode Test]:
+		string  ---         < hello >
+		coded   ---         < [5D] [41] [40] [2A] [BC] [4B] [2A] [76] [B9] [71] [9D] [91] [10] [17] [C5] [92]  >
+
+		[3Des-Ecb Encode/DeCode Test]:
+		origin  ---         < 01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ >
+		coded   ---         < /s4o9YYYsQqFTREnMm07x02KAiOwHrczObP71fm4AQKzP2GpjsNqxoRgUFBFRaEZ0ykY5REK5Ik= >
+		used time: 1115 us
+		decoded ---         < 01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ >
+		used time: 739 us
   
 ## md5:  
   * 加密:  
@@ -38,3 +59,4 @@
 	algo_3des_ecb_decrypt(enstr, destr);  
 
 	
+
