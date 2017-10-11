@@ -85,7 +85,8 @@ void triple_des_ecb_test() {
 
 	long t1, t2, t3, t4;
 
-	algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");
+	//algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");
+	algo_3des_ecb_init("313131313131313131313131313131313131313131313131");
 	//algo_3des_ecb_init("00000000000000000000000000000000");
 	
 	

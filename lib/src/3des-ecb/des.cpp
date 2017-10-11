@@ -588,6 +588,7 @@ std::string Des::desEncrypt(std::string str) {
 	//auto mode = checkKey(deskey);
 	int mode = checkKey(deskey);
 	if (mode == KEY_ERROR) {
+		printf("-------------");
 		return nullptr;
 	}
 
@@ -671,6 +672,7 @@ std::string Des::desDecrypt(std::string str) {
 	//auto mode = checkKey(deskey);
 	int mode = checkKey(deskey);
 	if (mode == KEY_ERROR) {
+		printf("-------------");
 		return nullptr;
 	}
 

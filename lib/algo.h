@@ -77,7 +77,9 @@ int algo_Md5Encode(const char *bufplain, int len, char bufcoded[16]);
  * 
  * 3des ecb 加密初始化
  * 
- * @param key[in] 加密密匙, 32字节或者48字节长度
+ * @param key[in] 加密密匙, 32字节或者48字节长度, 例如密码是
+ * "111111111111111111111111", 24个1,这里应该填写
+ * "31313131313131313131313131313131313131313131313131313131", 就是1的hex string形式
  * 
  * @return none
  */
