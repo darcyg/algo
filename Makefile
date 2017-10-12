@@ -1,7 +1,9 @@
 ROOTDIR=$(shell pwd)
 WORKDIR=$(ROOTDIR)/build
 
-targets		+= libalgo.so
+ALGO_VERSION	:= 1.0.0
+
+targets		+= libalgo_$(ALGO_VERSION).so
 targets		+= test
 
 
@@ -29,7 +31,7 @@ testobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(testsrcs)))
 -include $(ROOTDIR)/make/arch.mk
 -include $(ROOTDIR)/make/rules.mk
 
-$(eval $(call LinkLio,libalgo.so,$(algoobjs)))
+$(eval $(call LinkLio,libalgo_$(ALGO_VERSION).so,$(algoobjs)))
 
 $(eval $(call LinkApp,test,$(testobjs)))
 

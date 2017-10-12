@@ -32,7 +32,7 @@ TARGET_CXXFLAGS 	+= $(TARGET_CFLAGS) -std=c++0x
 
 TARGET_LDFLAGS 		+= -lm -lrt -ldl -lpthread -Xlinker
 TARGET_LDFLAGS 		+= -lstdc++
-TARGET_LDFLAGS 		+= -L $(ROOTDIR)/build -lalgo
+TARGET_LDFLAGS 		+= -L $(ROOTDIR)/build -lalgo_$(ALGO_VERSION)
 TARGET_LDFLAGS		+= $(CROSS_LDFLAGS)
 
 
