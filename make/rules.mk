@@ -22,6 +22,6 @@ endef
 
 define LinkLio
 $1: $2
-	$(CXX) -shared -fPIC -Xlinker -ldl $2 -o $(ROOTDIR)/build/$1
+	$(CXX) -shared -fPIC $2 -o $(ROOTDIR)/build/$1
 endef
 

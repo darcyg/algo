@@ -5,7 +5,6 @@ ALGO_VERSION	:= 1.0.0
 
 targets		+= libalgo_$(ALGO_VERSION).so
 targets		+= test
-targets		+= sqt
 
 
 .PHONY: targets
@@ -18,6 +17,7 @@ algosrcs				+= $(ROOTDIR)/lib/src/base64/base64.c
 algosrcs				+= $(ROOTDIR)/lib/src/md5/md5.c
 algosrcs				+= $(ROOTDIR)/lib/src/3des-ecb/des.cpp
 algosrcs				+= $(ROOTDIR)/lib/algo.c
+algosrcs				+= $(ROOTDIR)/lib/ds.c
 
 algosrcs				+= $(ROOTDIR)/lib/src/sqlite-amalgamation-3200100/sqlite3.c
 
@@ -26,15 +26,10 @@ algoobjs				:= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(algosrcs)))
 
 ## test :
 testsrcs				+= $(ROOTDIR)/main.c
+testsrcs				+= $(algosrcs)
 
 testsrcs				:= $(subst .cpp,.c,$(testsrcs))
 testobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(testsrcs)))
-
-
-## sqt :  
-sqtsrcs					+= $(ROOTDIR)/lib/src/sqlite-amalgamation-3200100/sqlite3.c
-sqtsrcs					+= $(ROOTDIR)/sqt.c
-sqtobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(sqtsrcs)))
 
 
 
@@ -44,8 +39,6 @@ sqtobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(sqtsrcs)))
 $(eval $(call LinkLio,libalgo_$(ALGO_VERSION).so,$(algoobjs)))
 
 $(eval $(call LinkApp,test,$(testobjs)))
-
-$(eval $(call LinkApp,sqt,$(sqtobjs)))
 
 
 run :  

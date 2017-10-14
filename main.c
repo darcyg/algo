@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "algo.h"
+#include "ds.h"
 
 void view_buf(char *buf, int len);
 void base64_test();

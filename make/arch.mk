@@ -27,6 +27,7 @@ TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/base64 
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/md5
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/3des-ecb
+TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/sqlite-amalgamation-3200100
 TARGET_CFLAGS 		+= $(CROSS_CFLAGS)
 TARGET_CXXFLAGS 	+= $(TARGET_CFLAGS) -std=c++0x
 
@@ -34,7 +35,6 @@ TARGET_CXXFLAGS 	+= $(TARGET_CFLAGS) -std=c++0x
 TARGET_LDFLAGS 		+= -lm -lrt -ldl -lpthread
 TARGET_LDFLAGS 		+= -lstdc++
 #TARGET_LDFLAGS 		+= -L$(ROOTDIR)/build -lalgo_$(ALGO_VERSION)
-TARGET_LDFLAGS 		+= -L$(ROOTDIR)/build 
 TARGET_LDFLAGS		+= $(CROSS_LDFLAGS)
 
 
