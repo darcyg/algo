@@ -59,4 +59,6 @@
 	algo_3des_ecb_decrypt(enstr, destr);  
 
 	
+## Sqlite3:  
+	version : sqlite-amalgamation-3200100.zip 
 
