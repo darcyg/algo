@@ -128,18 +128,33 @@ typedef union stTableRecord {
 }stTableRecord_t;
 
 
+enum {
+	CBMODE_CREATE = 0,
+	CBMODE_INSERT = 1,
+	CBMODE_UPDATE = 2,
+	CBMODE_SEARCH = 3,
+	CBMODE_DELETE = 4,
+	CBMODE_EXIST	= 5,
+};
 typedef struct stDataStorage {
 	char						pathname[256];
+
+	void						*db;
+
+	int							cbmode;
+	int							ret;
 	stTableRecord_t records[256];
 }stDataStorage_t;
 
 int ds_init(const char *pathname, int option);
+int ds_free();
 int ds_insert_record(const char *tblname, stTableRecord_t *record);
-int ds_update_record(const char *tblname, stTableRecord_t *record);
-int ds_delete_record(const char *tblname, stTableRecord_t *record);
+int ds_update_record(const char *tblname, stTableRecord_t *record, const char *where);
+int ds_delete_record(const char *tblname, const char *where);
 int ds_search_record(const char *tblname, 
 										 int compare(stTableRecord_t *, void *), 
 										 void *arg,
+										 const char *where,
 										 stTableRecord_t *retult);
 
 

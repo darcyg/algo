@@ -15,6 +15,8 @@ void md5_test();
 void triple_des_ecb_test();
 long current_system_time_us();
 
+void db_test();
+
 int main(int argc, char *argv[]) {
 
 	/* base64 test */
@@ -27,6 +29,8 @@ int main(int argc, char *argv[]) {
 	/* 3des ecb */
 	triple_des_ecb_test();
 
+	/* db test */
+	db_test();
 	return 0;
 }
 
@@ -115,6 +119,29 @@ void triple_des_ecb_test() {
 
 	algo_3des_ecb_free();
 	
+}
+
+
+void db_test() {
+	ds_init("./build/test.db", 0);
+
+	int i = 0; 
+	static char* modules[] = {
+		"TEST", "FUNC", "STORAGE",
+	};
+	for (i = 0; i < 100; i++) {
+		stTableRecord_t tr = {
+			.log = {
+				.module = "",
+				.level	= 0,
+				.content = "helloworld",
+			},
+		};
+		strcpy(tr.log.module, modules[rand()%3]);
+		ds_insert_record("log", &tr);
+	}
+
+	ds_free();
 }
 
 void view_buf(char *buf, int len) {
