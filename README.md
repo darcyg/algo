@@ -1,7 +1,9 @@
-# 智能门禁　算法库  
+# 智能门禁　算法库  & 数据库
 
 ## 概述:  
   这个算法库主要包含智能门禁系统中与WebService　接口对接时候用到的算法库,主要包括md5, base64及3DES-ECB
+
+	数据库(sqlite3)
   
 
 
@@ -60,5 +62,13 @@
 
 	
 ## Sqlite3:  
-	version : sqlite-amalgamation-3200100.zip 
+	version : sqlite-amalgamation-3200100.zip  
+	ds_init : 数据库初始化  
+	ds_free : 关闭数据库  
+	ds_insert_record : 插入记录  
+	ds_update_record : 更新记录  
+	ds_delete_record : 删除记录  
+	ds_search_record : 查询记录  
+
+
 

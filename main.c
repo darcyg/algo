@@ -122,24 +122,66 @@ void triple_des_ecb_test() {
 }
 
 
+int db_test_search_callback(stTableRecord_t *tr, void *arg) {
+	printf("[%s] %d(%d,%s,%d,%s)\n", __func__, __LINE__, tr->log.timestamp,tr->log.module, tr->log.level, tr->log.content);
+	return 0;
+}
+
 void db_test() {
-	ds_init("./build/test.db", 0);
+	stTableRecord_t trbasic = {
+		.basic = {
+			.uuid = "1212",
+			.reluuid = "2323",
+			.state = 0,
+			.fwxxdz = "hzdusun",
+			.area_code = "310000",
+			.areatype = 0,
+			.ip = "192.168.10.1",
+			.mac = "0102030405060708",
+			.model = "dusun",
+			.sysversion = "1.0.0",
+			.appversion = "1.0.0",
+			.adminname  = "admin",
+			.adminpass	= "123456",
+			.capability = 0,
+			.lurumode		= 0,
+		},
+	};
+
+
+	ds_init("./build/test.db", 0, &trbasic);
 
 	int i = 0; 
 	static char* modules[] = {
 		"TEST", "FUNC", "STORAGE",
 	};
-	for (i = 0; i < 100; i++) {
+	for (i = 0; i < 10; i++) {
 		stTableRecord_t tr = {
 			.log = {
+				.timestamp = time(NULL),
 				.module = "",
-				.level	= 0,
+				.level	= i%3,
 				.content = "helloworld",
 			},
 		};
 		strcpy(tr.log.module, modules[rand()%3]);
 		ds_insert_record("log", &tr);
 	}
+
+	ds_delete_record("log", "module = '%s'", "TEST");
+	ds_delete_record("log", "module = '%s'", "FUNC");
+
+	stTableRecord_t tr = {
+			.log = {
+				.timestamp = time(NULL),
+				.module = "MODIFIED",
+				.level	= 99,
+				.content = "Yes",
+			},
+	};
+	ds_update_record("log", &tr, "module = '%s'", "STORAGE");
+
+	ds_search_record("log", db_test_search_callback, NULL, "module = '%s'", "MODIFIED");
 
 	ds_free();
 }

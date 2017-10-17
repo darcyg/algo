@@ -7,7 +7,8 @@
 extern "C" {
 #endif
 
-
+#pragma pack(push)
+#pragma pack(1)
 typedef struct stBasicInfo {
 	char	uuid[32];
 	char	reluuid[32];
@@ -108,6 +109,7 @@ typedef struct stDeviceAlarm {
 }stDeviceAlarm_t;
 
 typedef struct stLog_t {
+	int		timestamp;
 	char	module[32];
 	int		level;				// 0->DEBUG, 1->ERROR, 2->WARNNING, 3->INFO
 	char	content[256];
@@ -126,40 +128,86 @@ typedef union stTableRecord {
 	stLockRecord_t		lock_record;
 	stLog_t						log;
 }stTableRecord_t;
+#pragma pack(pop)
 
 
-enum {
-	CBMODE_CREATE = 0,
-	CBMODE_INSERT = 1,
-	CBMODE_UPDATE = 2,
-	CBMODE_SEARCH = 3,
-	CBMODE_DELETE = 4,
-	CBMODE_EXIST	= 5,
-};
-typedef struct stDataStorage {
-	char						pathname[256];
+typedef int (*SEARCH_CB)(stTableRecord_t *, void *);
 
-	void						*db;
+/* ds_init
+ * 
+ * 数据库表init 
+ *
+ * @param[in] pathname 数据文件路径
+ * @param[in] not used
+ * @param[in] tr 记录,basic info表只有一条记录，初始化的时候复制进去
+ * 
+ * @return 0 -> ok, 其他失败
+ */
+int ds_init(const char *pathname, int option, stTableRecord_t *tr);
 
-	int							cbmode;
-	int							ret;
-	stTableRecord_t records[256];
-}stDataStorage_t;
-
-int ds_init(const char *pathname, int option);
+/* ds_free
+ * 
+ * 关闭数据库
+ * 
+ * @param none
+ * 
+ * @return 0
+ */
 int ds_free();
+
+/* ds_insert_record
+ * 
+ * 插入数据记录
+ * 
+ * @param[in] tblname 表名称
+ * @param[in] record  记录数据
+ * 
+ * @return 返回0表示OK, 其他表示失败
+ */
 int ds_insert_record(const char *tblname, stTableRecord_t *record);
-int ds_update_record(const char *tblname, stTableRecord_t *record, const char *where);
-int ds_delete_record(const char *tblname, const char *where);
+
+/* ds_update_record
+ * 
+ * 更新数据记录
+ * 
+ * @param[in] tblname 表名称
+ * @param[in] record  记录数据
+ * @param[in] where  更新记录匹配条件
+ * @param[in] ...　可变参数, where 和 ...共同组成 sql where语句条件, 例如 name=%s, "keven", 表示 where name='keven'
+ * 
+ * @return 返回0表示OK, 其他表示失败
+ */
+int ds_update_record(const char *tblname, stTableRecord_t *record, const char *where, ...);
+
+/* ds_delete_record
+ * 
+ * 删除记录
+ * 
+ * @param[in] tblname 表名称
+ * @param[in] where  更新记录匹配条件
+ * @param[in] ...　可变参数, where 和 ...共同组成 sql where语句条件, 例如 name=%s, "keven", 表示 where name='keven'
+ * 
+ * @return 返回0表示OK, 其他表示失败
+ */
+int ds_delete_record(const char *tblname, const char *where, ...);
+
+/* ds_search_record
+ * 
+ * 查找记录
+ * 
+ * @param[in] tblname 表名称
+ * @param[in] callback 回调函数,对于每条匹配的记录会回调这个函数,
+ * @param[in] args, 传给回调函数的参数
+ * @param[in] where  更新记录匹配条件
+ * @param[in] ...　可变参数, where 和 ...共同组成 sql where语句条件, 例如 name=%s, "keven", 表示 where name='keven'
+ * 
+ * @return 返回0表示OK, 其他表示失败
+ */
 int ds_search_record(const char *tblname, 
-										 int compare(stTableRecord_t *, void *), 
+										 int callback(stTableRecord_t *, void *), 
 										 void *arg,
 										 const char *where,
-										 stTableRecord_t *retult);
-
-
-
-
+										 ...);
 
 #ifdef __cplusplus
 }

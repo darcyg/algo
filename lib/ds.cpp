@@ -21,6 +21,7 @@ typedef struct stTableItem {
 	const char *name;
 	const char *type;
 	int					len;
+	int					primary;
 }stTableItem_t;
 
 typedef struct stTableOperaion {
@@ -33,6 +34,31 @@ typedef struct stTableOperaion {
 	char *search;
 	char *remove;
 }stTableOperaion_t;
+
+typedef struct stExecEnv {
+	int		cbmode;
+	void	*data;
+	int		ret;
+	void	*cb;
+	void	*arg;
+}stExecEnv_t;
+typedef struct stDataStorage {
+	char						pathname[256];
+
+	void						*db;
+	stTableRecord_t records[256];
+}stDataStorage_t;
+
+
+enum {
+	CBMODE_CREATE = 0,
+	CBMODE_INSERT = 1,
+	CBMODE_UPDATE = 2,
+	CBMODE_SEARCH = 3,
+	CBMODE_DELETE = 4,
+	CBMODE_EXIST	= 5,
+};
+
 
 #define RECORD_BASEINFO(x)  \
 		((stBasicInfo_t*)x)->uuid,\
@@ -50,20 +76,20 @@ typedef struct stTableOperaion {
 		((stBasicInfo_t*)x)->capability,\
 		((stBasicInfo_t*)x)->lurumode
 static stTableItem_t basicinfo_items[] = {
-	{"uuid",			"char", 32},
-	{"reluuid",		"char", 32},
-	{"state",			"int",	1},
-	{"fwxxdz",		"char", 256},
-	{"area_code",	"char", 60},
-	{"areatype",	"int",	1},
-	{"ip",				"char", 16},
-	{"mac",				"char", 32},
-	{"sysversion","char", 64},
-	{"appversion","char", 64},
-	{"adminname", "char", 32},
-	{"adminpass", "char", 32},
-	{"capability","int",	1},
-	{"lurumode",	"int",	1},
+	{"uuid",			"char", 32, 1},
+	{"reluuid",		"char", 32, 0},
+	{"state",			"int",	1,	0},
+	{"fwxxdz",		"char", 256,0},
+	{"area_code",	"char", 60,	0},
+	{"areatype",	"int",	1,	0},
+	{"ip",				"char", 16,	0},
+	{"mac",				"char", 32,	0},
+	{"sysversion","char", 64,	0},
+	{"appversion","char", 64,	0},
+	{"adminname", "char", 32,	0},
+	{"adminpass", "char", 32,	0},
+	{"capability","int",	1,	0},
+	{"lurumode",	"int",	1,	0},
 };
 
 #define RECORD_PERSON(x) \
@@ -82,19 +108,19 @@ static stTableItem_t basicinfo_items[] = {
 		((stPerson_t*)x)->finger2type
 
 static stTableItem_t person_items[] = {
-	{"uuid",			"char",	32},
-	{"state",			"int",	1},
-	{"name",			"char", 50},
-	{"sex",				"char",	1},
-	{"idcard",		"char",	18},
-	{"flow",			"char",	1},
-	{"family",		"char",	1},
-	{"owner",			"char", 1},
-	{"patrol",		"char", 1},
-	{"finger1",		"char",32},
-	{"finger2",			"char",32},
-	{"finger1type",	"int",1},
-	{"finger2type",	"int",1},
+	{"uuid",			"char",	32,	1},
+	{"state",			"int",	1,	0},
+	{"name",			"char", 50,	0},
+	{"sex",				"char",	1,	0},
+	{"idcard",		"char",	18,	0},
+	{"flow",			"char",	1,	0},
+	{"family",		"char",	1,	0},
+	{"owner",			"char", 1,	0},
+	{"patrol",		"char", 1,	0},
+	{"finger1",		"char",32,	0},
+	{"finger2",			"char",32,0},
+	{"finger1type",	"int",1,	0},
+	{"finger2type",	"int",1,	0},
 };
 
 #define RECORD_VCARD(x) \
@@ -105,12 +131,12 @@ static stTableItem_t person_items[] = {
 	((stVcard_t*)x)->stime,\
 	((stVcard_t*)x)->etime
 static stTableItem_t vcard_items[] = {
-	{"uuid",			"char", 32},
-	{"vtype",			"int",	1},
-	{"vcardid",		"char",	32},
-	{"state",			"int",	1},
-	{"stime",			"int",	1},
-	{"etime",			"int",	1},
+	{"uuid",			"char", 32,	1},
+	{"vtype",			"int",	1,	0},
+	{"vcardid",		"char",	32,	0},
+	{"state",			"int",	1,	0},
+	{"stime",			"int",	1,	0},
+	{"etime",			"int",	1,	0},
 };
 
 #define RECORD_DEVICE(x) \
@@ -121,12 +147,12 @@ static stTableItem_t vcard_items[] = {
 	((stDevice_t*)x)->gw_uuid,\
 	((stDevice_t*)x)->capability
 static stTableItem_t device_items[] = {
-	{"uuid",			"char",	32},
-	{"name",			"char",	64},
-	{"mac",				"char",	32},
-	{"type",			"int",	1},
-	{"gw_uuid",		"char",	32},
-	{"capability","int",	1},
+	{"uuid",			"char",	32,	1},
+	{"name",			"char",	64,	0},
+	{"mac",				"char",	32,	0},
+	{"type",			"int",	1,	0},
+	{"gw_uuid",		"char",	32,	0},
+	{"capability","int",	1,	0},
 };
 
 #define RECORD_VCARD_DEVICE(x) \
@@ -137,20 +163,20 @@ static stTableItem_t device_items[] = {
 	((stVcardDevice_t*)x)->etime,\
 	((stVcardDevice_t*)x)->capability
 static stTableItem_t vcard_device_items[] = {
-	{"vcard_uuid",	"char",	32},
-	{"dev_uuid",		"char",	32},
-	{"state",				"int",	1},
-	{"stime",				"int",	1},
-	{"etime",				"int",	1},
-	{"capability",	"int",	1},
+	{"vcard_uuid",	"char",	32,	0},
+	{"dev_uuid",		"char",	32,	0},
+	{"state",				"int",	1,	0},
+	{"stime",				"int",	1,	0},
+	{"etime",				"int",	1,	0},
+	{"capability",	"int",	1,	0},
 };
 
 #define RECORD_VCARD_PERSON(x) \
 	((stVcardPerson_t*)x)->vcard_uuid,\
 	((stVcardPerson_t*)x)->person_uuid
 static stTableItem_t vcard_person_items[] = {
-	{"vcard_uuid",			"char",	32},
-	{"person_uuid",			"char",	32},
+	{"vcard_uuid",			"char",	32,	0},
+	{"person_uuid",			"char",	32,	0},
 };
 
 #define RECORD_DEVICE_STATUS(x) \
@@ -164,15 +190,15 @@ static stTableItem_t vcard_person_items[] = {
 	((stDeviceStatus_t*)x)->workmode,\
 	((stDeviceStatus_t*)x)->powermode
 static stTableItem_t device_status_items[] = {
-	{"dev_uuid",		"char",	32},
-	{"status",			"int",	1},
-	{"hwversion",		"char",	32},
-	{"sfversion",		"char",	32},
-	{"battery",			"int",	1},
-	{"temperature",	"int",	1},
-	{"onoff",				"int",	1},
-	{"workmode",		"int",	1},
-	{"powermode",		"int",	1},
+	{"dev_uuid",		"char",	32,	0},
+	{"status",			"int",	1,	0},
+	{"hwversion",		"char",	32,	0},
+	{"sfversion",		"char",	32,	0},
+	{"battery",			"int",	1,	0},
+	{"temperature",	"int",	1,	0},
+	{"onoff",				"int",	1,	0},
+	{"workmode",		"int",	1,	0},
+	{"powermode",		"int",	1,	0},
 };
 
 #define RECORD_LOCK_RECORD(x) \
@@ -185,14 +211,14 @@ static stTableItem_t device_status_items[] = {
 	((stLockRecord_t*)x)->vcardid,\
 	((stLockRecord_t*)x)->area_code
 static stTableItem_t lock_record_items[] = {
-	{"vcard_uuid",	"char",	32},
-	{"person_uuid",	"char",	32},
-	{"timestamp",		"int",	1},
-	{"mac",					"char",	32},
-	{"opentype",		"int",	1},
-	{"area_uuid",		"char",	32},
-	{"vcardid",			"char",	32},
-	{"area_code",		"char",	60},
+	{"vcard_uuid",	"char",	32,	0},
+	{"person_uuid",	"char",	32,	0},
+	{"timestamp",		"int",	1,	0},
+	{"mac",					"char",	32,	0},
+	{"opentype",		"int",	1,	0},
+	{"area_uuid",		"char",	32,	0},
+	{"vcardid",			"char",	32,	0},
+	{"area_code",		"char",	60,	0},
 };
 
 #define RECORD_DEVICE_ALARM(x) \
@@ -203,22 +229,24 @@ static stTableItem_t lock_record_items[] = {
 	((stDeviceAlarm_t*)x)->area_uuid,\
 	((stDeviceAlarm_t*)x)->vcardid
 static stTableItem_t device_alarm_items[] = {
-	{"dev_uuid",		"char",	32},
-	{"timestamp",		"int",	1},
-	{"mac",					"char",	32},
-	{"type",				"int",	1},
-	{"area_uuid",		"char",	32},
-	{"vcardid",			"char",	32},
+	{"dev_uuid",		"char",	32,	0},
+	{"timestamp",		"int",	1,	0},
+	{"mac",					"char",	32,	0},
+	{"type",				"int",	1,	0},
+	{"area_uuid",		"char",	32,	0},
+	{"vcardid",			"char",	32,	0},
 };
 
 #define RECORD_LOG(x) \
+	((stLog_t*)x)->timestamp,\
 	((stLog_t*)x)->module,\
 	((stLog_t*)x)->level,\
 	((stLog_t*)x)->content
 static stTableItem_t log_items[] = {
-	{"module",			"char",	32},
-	{"level",				"int",	1},
-	{"content",			"char",	256},
+	{"timestamp",		"int",	1,		0},
+	{"module",			"char",	32,		0},
+	{"level",				"int",	1,		0},
+	{"content",			"char",	256,	0},
 };
 
 
@@ -277,6 +305,7 @@ static int ds_db_exsit() {
 	return 1;
 }
 
+/*
 static int ds_db_create() {
 	sqlite3 **pdb = (sqlite3**)&ds.db;
 	int rc = sqlite3_open(ds.pathname, pdb);
@@ -287,6 +316,7 @@ static int ds_db_create() {
 	}
 	return 0;
 }
+*/
 
 static int ds_db_open() {
 	sqlite3 **pdb = (sqlite3**)&ds.db;
@@ -304,7 +334,7 @@ static int ds_db_close() {
 	return 0;
 }
 
-static int ds_db_prepare() {
+static int ds_db_prepare(stTableRecord_t *tr) {
 	int count = ARRAY_SIZE(tblops);
 	int i = 0;
 	for (i = 0; i < count; i++) {
@@ -312,23 +342,7 @@ static int ds_db_prepare() {
 			ds_create_table(tblops[i].tblname);
 
 			if (strcmp(tblops[i].tblname, "basicinfo") == 0) {
-				stTableRecord_t tr;
-				strcpy(tr.basic.uuid, "1212");
-				strcpy(tr.basic.reluuid, "2323");
-				tr.basic.state = 0;
-				strcpy(tr.basic.fwxxdz, "hzdusun");
-				strcpy(tr.basic.area_code, "310000");
-				tr.basic.areatype = 0;
-				strcpy(tr.basic.ip, "192.168.10.1");
-				strcpy(tr.basic.mac, "0102030405060708");
-				strcpy(tr.basic.model, "dusun");
-				strcpy(tr.basic.sysversion, "1.0.0");
-				strcpy(tr.basic.appversion, "1.0.0");
-				strcpy(tr.basic.adminname, "admin");
-				strcpy(tr.basic.adminpass, "123456");
-				tr.basic.capability = 0;
-				tr.basic.lurumode = 0;
-				ds_insert_record("basicinfo",  &tr);
+				ds_insert_record("basicinfo",  tr);
 			}
 		}
 	}
@@ -348,28 +362,69 @@ static stTableOperaion_t *ds_search_table_operation(const char *tblname) {
 	return NULL;
 }
 
-static int ds_sqlite3_exec_callback(void *NotUsed, int argc, char **argv, char **azColName) {
+static int ds_sqlite3_exec_callback(void *data, int argc, char **argv, char **azColName) {
+	stExecEnv_t *ee = (stExecEnv_t*)data;
+
 	int i;
 	for	(i=0; i	<	argc; i++)	{
 		//log_info("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
 	}
 	//log_info("%s", "\n");
 
-	switch (ds.cbmode) {
+	switch (ee->cbmode) {
 	case CBMODE_EXIST:
 		if (argc == 0) {
-			ds.ret = 0;
+			ee->ret = 0;
 		} else {
-			ds.ret = 1;
+			ee->ret = 1;
 		}
 		break;
 	case CBMODE_CREATE:
 		break;
 	case CBMODE_INSERT:
 		break;
-	case CBMODE_SEARCH:
-		break;
 	case CBMODE_DELETE:
+		break;
+	case CBMODE_SEARCH:
+		{
+			stTableRecord_t tr;
+			char *ptr = (char *)&tr;
+			stTableOperaion_t *to = (stTableOperaion_t*)ee->data;
+			int i= 0;
+			for (i = 0; i < argc; i++) {
+				stTableItem_t *ti = &to->items[i];
+				//log_trace("parse %s, %s\n", ti->name, argv[i]);
+				if (strcmp(ti->type, "char") == 0) {
+					if (ti->len == 1) {
+						int x = 0;
+						sscanf(argv[i], "%d", &x);	
+
+						*ptr = x&0xff;
+
+						ptr += ti->len;
+					} else {
+						strcpy(ptr, argv[i]);
+
+						ptr += ti->len;
+					}
+				} else if (strcmp(ti->type, "int") == 0) {
+					if (ti->len == 1) {
+						int x = 0;
+						sscanf(argv[i], "%d", &x);	
+						*(int*)ptr = x;
+
+						ptr += ti->len * 4;
+					} else {
+						;;
+						ptr += ti->len * 4;
+					}
+				} 
+			}
+
+			if (ee->cb != NULL) {
+				((SEARCH_CB)(ee->cb))(&tr, ee->arg);
+			}
+		}
 		break;
 	default:
 		break;
@@ -377,12 +432,12 @@ static int ds_sqlite3_exec_callback(void *NotUsed, int argc, char **argv, char *
 	return 0;
 }
 
-static int ds_sqlite3_exec(const char *buf) {
+static int ds_sqlite3_exec(const char *buf, void *data) {
 	char *zErrMsg = NULL;
 
-	log_debug("[%s] %s\n", __func__, buf);
+	//log_debug("[%s] %s\n", __func__, buf);
 
-	int rc	= sqlite3_exec((sqlite3 *)ds.db, buf, ds_sqlite3_exec_callback, 0, &zErrMsg);
+	int rc	= sqlite3_exec((sqlite3 *)ds.db, buf, ds_sqlite3_exec_callback, data, &zErrMsg);
 
 	if (rc != SQLITE_OK) {
 		log_err("SQL error: %s\n", zErrMsg);
@@ -396,12 +451,13 @@ static int ds_table_exsit(const char *tblname) {
 	char buf[512];
 	sprintf(buf, "select name from sqlite_master where type='table' AND name='%s'", tblname);
 
-	ds.cbmode = CBMODE_EXIST;
-	int rc = 	ds_sqlite3_exec(buf);
+	stExecEnv_t ee = { CBMODE_EXIST, NULL, -1, NULL, NULL};
+
+	int rc = 	ds_sqlite3_exec(buf, &ee);
 
 	//log_debug("[%s] [%d] rc : %d\n", __func__, __LINE__, rc);
 
-	if (rc == 0 && ds.ret == 1) {
+	if (rc == 0 && ee.ret == 1) {
 		//log_debug("[%s] [%d] table(%s) has exsit.\n", __func__, __LINE__, tblname);
 		return 1;
 	}
@@ -423,6 +479,9 @@ static int ds_fill_table_operation_create(stTableOperaion_t *to) {
 		len += sprintf(buf + len, "%s %s", ti->name, ti->type);
 		if (ti->len > 1) {
 			len += sprintf(buf + len, "(%d)", ti->len);
+		}
+		if (ti->primary) {
+			len += sprintf(buf + len, " primary key");
 		}
 		if (i < itemcnt - 1) {
 			len += sprintf(buf + len, ",");
@@ -482,7 +541,7 @@ static int ds_fill_table_operation_update(stTableOperaion_t *to) {
 	char buf[512];
 	int len = 0;
 	
-	len += sprintf(buf + len, "update %s ", to->tblname);
+	len += sprintf(buf + len, "update %s set ", to->tblname);
 	for (i = 0; i < itemcnt; i++) {
 		stTableItem_t *ti = &to->items[i];
 		len += sprintf(buf + len, "%s = ", ti->name);
@@ -505,7 +564,7 @@ static int ds_fill_table_operation_update(stTableOperaion_t *to) {
 			len += sprintf(buf + len, ",");
 		}
 	}
-	len += sprintf(buf + len, ") ");
+	len += sprintf(buf + len, " ");
 	//len += sprintf(buf + len, " where %%s;");
 
 	to->update = (char *)malloc(len + 1);
@@ -579,7 +638,7 @@ int ds_free() {
 	return 0;
 }
 
-int ds_init(const char *pathname, int option) {
+int ds_init(const char *pathname, int option, stTableRecord_t *tr) {
 
 	if (!ds_valid_db_pathname(pathname)) {
 		log_err("Invalid database name: %s\n", pathname);
@@ -607,9 +666,9 @@ int ds_init(const char *pathname, int option) {
 
 	ds_fill_table_operation();
 
-	ds_view_table_operation();
+	//ds_view_table_operation();
 
-	ds_db_prepare();
+	ds_db_prepare(tr);
 
 	return 0;
 }
@@ -626,8 +685,8 @@ int ds_create_table(const char *tblname) {
 	char buf[512];
 	sprintf(buf, to->create, tblname);
 
-	ds.cbmode = CBMODE_CREATE;
-	int ret = ds_sqlite3_exec(buf);
+	stExecEnv_t ee = { CBMODE_CREATE, to, -1, NULL, NULL};
+	int ret = ds_sqlite3_exec(buf, &ee);
 
 	return ret;
 }
@@ -646,13 +705,13 @@ int ds_insert_record(const char *tblname, stTableRecord_t *record) {
 	char buf[512];
 	SPRINTF(buf, to->insert, tblname, record);
 
-	ds.cbmode = CBMODE_INSERT;
-	int ret = ds_sqlite3_exec(buf);
+	stExecEnv_t ee = { CBMODE_INSERT, to, -1, NULL, NULL};
+	int ret = ds_sqlite3_exec(buf, &ee);
 
 	return ret;
 }
 
-int ds_update_record(const char *tblname, stTableRecord_t *record, const char *where) {
+int ds_update_record(const char *tblname, stTableRecord_t *record, const char *where, ...) {
 	//log_debug("[%s] ]%d] <%s>\n", __func__, __LINE__, tblname);
 
 	stTableOperaion_t *to = ds_search_table_operation(tblname);
@@ -663,15 +722,24 @@ int ds_update_record(const char *tblname, stTableRecord_t *record, const char *w
 
 	char buf[512];
 	SPRINTF(buf, to->update, tblname, record);
-	sprintf(buf + strlen(buf), "where %s;", where);
 
-	ds.cbmode = CBMODE_UPDATE;
-	int ret = ds_sqlite3_exec(buf);
+	char wbuf[256];
+	va_list ap;
+	va_start(ap, where);
+	vsprintf(wbuf, where, ap);
+	//log_trace("wbuf is %s\n", wbuf);
+	va_end(ap);
+
+	//sprintf(buf + strlen(buf), "where %s;", where);
+	sprintf(buf + strlen(buf), "where %s;", wbuf);
+
+	stExecEnv_t ee = { CBMODE_UPDATE, to, -1, NULL, NULL};
+	int ret = ds_sqlite3_exec(buf, &ee);
 
 	return ret;
 }
 
-int ds_delete_record(const char *tblname, const char *where) {
+int ds_delete_record(const char *tblname, const char *where, ...) {
 	//log_debug("[%s] ]%d] <%s>\n", __func__, __LINE__, tblname);
 
 	stTableOperaion_t *to = ds_search_table_operation(tblname);
@@ -682,19 +750,28 @@ int ds_delete_record(const char *tblname, const char *where) {
 
 	char buf[512];
 	sprintf(buf, to->remove, tblname);
-	sprintf(buf + strlen(buf), "where %s;", where);
 
-	ds.cbmode = CBMODE_DELETE;
-	int ret = ds_sqlite3_exec(buf);
+	char wbuf[256];
+	va_list ap;
+	va_start(ap, where);
+	vsprintf(wbuf, where, ap);
+	//log_trace("wbuf is %s\n", wbuf);
+	va_end(ap);
+
+	//sprintf(buf + strlen(buf), "where %s;", where);
+	sprintf(buf + strlen(buf), "where %s;", wbuf);
+
+	stExecEnv_t ee = { CBMODE_DELETE, to, -1, NULL, NULL};
+	int ret = ds_sqlite3_exec(buf, &ee);
 
 	return ret;
 }
 
 int ds_search_record(const char *tblname, 
-										 int compare(stTableRecord_t *, void *), 
+										 SEARCH_CB callback,
 										 void *arg,
 										 const char *where,
-										 stTableRecord_t *retult) {
+										 ...) {
 	//log_debug("[%s] ]%d] <%s>\n", __func__, __LINE__, tblname);
 
 	stTableOperaion_t *to = ds_search_table_operation(tblname);
@@ -705,14 +782,24 @@ int ds_search_record(const char *tblname,
 
 	char buf[512];
 	sprintf(buf, to->search, tblname);
-	sprintf(buf + strlen(buf), "where %s;", where);
 
-	ds.cbmode = CBMODE_SEARCH;
-	int ret = ds_sqlite3_exec(buf);
+	char wbuf[256];
+	va_list ap;
+	va_start(ap, where);
+	vsprintf(wbuf, where, ap);
+	//log_trace("wbuf is %s\n", wbuf);
+	va_end(ap);
+
+	//sprintf(buf + strlen(buf), "where %s;", where);
+	sprintf(buf + strlen(buf), "where %s;", wbuf);
+
+	stExecEnv_t ee = { CBMODE_SEARCH, to, -1, (void*)callback, arg};
+	int ret = ds_sqlite3_exec(buf, &ee);
 
 	/* compare and fill result */
 
 	return ret;
 }
+
 
 
