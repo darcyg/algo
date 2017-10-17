@@ -81,45 +81,6 @@ void md5_test() {
 }
 
 
-void triple_des_ecb_test() {
-	char *origin = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ";
-	//char *origin = "1234567";
-	//char *origin = "5140000000080401AEBFFFFFFFF7FBFE";
-	char enstr[256];
-	char destr[256];
-
-	long t1, t2, t3, t4;
-
-	//algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");
-	algo_3des_ecb_init("313131313131313131313131313131313131313131313131");
-	//algo_3des_ecb_init("00000000000000000000000000000000");
-	
-	
-	t1 = current_system_time_us();
-	algo_3des_ecb_encrypt(origin, enstr);
-	t2 = current_system_time_us();
-
-	t3 = current_system_time_us();
-	algo_3des_ecb_decrypt(enstr, destr);
-	t4 = current_system_time_us();
-
-	
-	printf("\n[3Des-Ecb Encode/DeCode Test]:\n");
-	printf("origin  ---         < ");
-	printf("%s", origin);
-	printf(" >\n");
-	printf("coded   ---         < ");
-	printf("%s", enstr);
-	printf(" >\n");
-	printf("used time: %ld us\n", t2-t1);
-	printf("decoded ---         < ");
-	printf("%s", destr);
-	printf(" >\n");
-	printf("used time: %ld us\n", t4-t3);
-
-	algo_3des_ecb_free();
-	
-}
 
 
 int db_test_search_callback(stTableRecord_t *tr, void *arg) {
@@ -204,4 +165,65 @@ long current_system_time_us() {
 	return (ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
 }
 
+
+void triple_des_ecb_test() {
+	//char *origin = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ";
+	//char *origin = "1234567";
+	//char *origin = "5140000000080401AEBFFFFFFFF7FBFE";
+	char *origin = "dongsheng";
+	char enstr[256];
+	char destr[256];
+
+	char g_keyBytes[]={0x11, 0x22, 0x4F, 0x58,0x88, 0x10, 0x40, 0x38, 0x28, 0x25, 0x79, 0x51,   
+                     0xCB,0xDD, 0x55, 0x66, 0x77, 0x29, 0x74, 0x98, 0x30, 0x40, 0x36, 0xE2 };
+	//char g_keyBytes[]={0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x31, 0x32, 0x33,
+	//										0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x31, 0x32, 0x33};
+
+
+	char keystr[512];
+	int len = 0;
+	
+
+	long t1, t2, t3, t4;
+
+	printf("[%s]", g_keyBytes);
+	//algo_3des_ecb_init("0123456789abcdef0123456789abcdef0123456789abcdef");
+
+	int i = 0;
+	for (i = 0; i < sizeof(g_keyBytes); i++) {
+		len += sprintf(keystr + len,"%02X", g_keyBytes[i]&0xff);
+	}
+	printf("key is %s, len is %d\n", keystr, strlen(keystr));
+
+	//algo_3des_ecb_init("313131313131313131313131313131313131313131313131");
+	//algo_3des_ecb_init("313131313131313131313131313131313131313131313131");
+	algo_3des_ecb_init(keystr);
+	//algo_3des_ecb_init(g_keyBytes);
+	
+	
+	t1 = current_system_time_us();
+	algo_3des_ecb_encrypt(origin, enstr);
+	t2 = current_system_time_us();
+
+	t3 = current_system_time_us();
+	algo_3des_ecb_decrypt(enstr, destr);
+	t4 = current_system_time_us();
+
+	
+	printf("\n[3Des-Ecb Encode/DeCode Test]:\n");
+	printf("origin  ---         < ");
+	printf("%s", origin);
+	printf(" >\n");
+	printf("coded   ---         < ");
+	printf("%s", enstr);
+	printf(" >\n");
+	printf("used time: %ld us\n", t2-t1);
+	printf("decoded ---         < ");
+	printf("%s", destr);
+	printf(" >\n");
+	printf("used time: %ld us\n", t4-t3);
+
+	algo_3des_ecb_free();
+	
+}
 
