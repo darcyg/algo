@@ -1,14 +1,23 @@
 #CROSS 	?= mips-openwrt-linux-
+CROSS		?= arm-linux-androideabi-
+
+#ifneq ($(CROSS),)
+#CROSSTOOLDIR						:=/opt/au/qsdk-dusun/qsdk
+#export	STAGING_DIR			:= $(CROSSTOOLDIR)/staging_dir
+#export	PATH						:=$(PATH):$(STAGING_DIR)/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-1.0.14/bin
+#ARCH										?= mips
+#CROSS_CFLAGS						:= -I$(CROSSTOOLDIR)/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-1.0.14/usr/include
+#CROSS_LDFLAGS					:= -L$(CROSSTOOLDIR)/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-1.0.14/usr/lib
+#endif
+
+CROSSTOOLDIR						:= /home/au/all/opt/tool
+#export	STAGING_DIR			:= $(CROSSTOOLDIR)/staging_dir
+export	PATH						:=$(PATH):$(CROSSTOOLDIR)/bin
+ARCH										?= arm
+CROSS_CFLAGS						:= -I$(CROSSTOOLDIR)/sysroot/usr/include
+CROSS_LDFLAGS						:= -L$(CROSSTOOLDIR)/sysroot/usr/lib
 
 
-ifneq ($(CROSS),)
-CROSSTOOLDIR						:=/opt/au/qsdk-dusun/qsdk
-export	STAGING_DIR			:= $(CROSSTOOLDIR)/staging_dir
-export	PATH						:=$(PATH):$(STAGING_DIR)/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-1.0.14/bin
-ARCH										?= mips
-CROSS_CFLAGS						:= -I$(CROSSTOOLDIR)/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-1.0.14/usr/include
-CROSS_LDFLAGS						:= -L$(CROSSTOOLDIR)/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-1.0.14/usr/lib
-endif
 
 GCC 		?= $(CROSS)gcc
 CXX			?= $(CROSS)g++
