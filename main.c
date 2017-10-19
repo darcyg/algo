@@ -8,16 +8,34 @@
 
 #include "algo.h"
 #include "ds.h"
+#include "util.h"
+#include "web.h"
 
-void view_buf(char *buf, int len);
 void base64_test();
 void md5_test();
 void triple_des_ecb_test();
-long current_system_time_us();
-
 void db_test();
+void web_test(const char *ip, int port);
+
+static char apppath[256];
+static char basedir[256];
+static char dbpath[256];
+static char webbase[256];
 
 int main(int argc, char *argv[]) {
+
+	get_exe_path(apppath, sizeof(apppath));
+	strcpy(basedir, apppath);
+	*rindex(basedir, '/') = 0;
+
+	sprintf(dbpath, "%s/../devroot/test.db", basedir);
+	sprintf(webbase, "%s/../devroot/www", basedir);
+
+	printf("[apppath]: %s\n", apppath);
+	printf("[basedir]: %s\n", basedir);
+	printf("[dbpath ]: %s\n",	dbpath);
+	printf("[webbase]: %s\n", webbase);
+
 
 	/* base64 test */
 	base64_test();
@@ -31,6 +49,9 @@ int main(int argc, char *argv[]) {
 
 	/* db test */
 	db_test();
+
+	/* web_test() */
+	web_test(argv[1], atoi(argv[2]));
 	return 0;
 }
 
@@ -81,8 +102,6 @@ void md5_test() {
 }
 
 
-
-
 int db_test_search_callback(stTableRecord_t *tr, void *arg) {
 	printf("[%s] %d(%d,%s,%d,%s)\n", __func__, __LINE__, tr->log.timestamp,tr->log.module, tr->log.level, tr->log.content);
 	return 0;
@@ -110,7 +129,7 @@ void db_test() {
 	};
 
 
-	ds_init("./build/test.db", 0, &trbasic);
+	ds_init(dbpath, 0, &trbasic);
 
 	int i = 0; 
 	static char* modules[] = {
@@ -146,25 +165,6 @@ void db_test() {
 
 	ds_free();
 }
-
-void view_buf(char *buf, int len) {
-	int i = 0;
-	for (i = 0; i < len; i++) {
-		printf("[%02X] ", buf[i]&0xff);
-		if ( (i + 1) % 20 == 0) {
-			printf("\n");
-		}
-	}
-}
-
-long current_system_time_us() {
-	struct timespec ts;
-
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-
-	return (ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
-}
-
 
 void triple_des_ecb_test() {
 	//char *origin = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ";
@@ -226,4 +226,19 @@ void triple_des_ecb_test() {
 	algo_3des_ecb_free();
 	
 }
+
+void web_test(const char *ip, int port) {
+	ds_init(dbpath, 0, NULL);
+	int ret = web_start(ip, port, webbase);
+	if (ret != 0) {
+		return;
+	}
+	
+	while (1) {	
+		web_loop();
+	}
+
+	ds_free();
+}
+
 

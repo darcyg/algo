@@ -11,17 +11,20 @@ clean:
 
 define LinkApp
 $1: $2
-	$(GCC) $2 $(LDFLAGS) $(TARGET_LDFLAGS) -o $(ROOTDIR)/build/$1
-	#$(STRIP) $(ROOTDIR)/build/$1
+	#$(GCC) $2 $(LDFLAGS) $(TARGET_LDFLAGS) -o $(ROOTDIR)/build/$1
+	$(CXX) $2 $(LDFLAGS) $(TARGET_LDFLAGS) -o $(ROOTDIR)/build/$1
+	$(STRIP) $(ROOTDIR)/build/$1
 endef
 
 define LinkLia
 $1: $2
 	$(AR) rcs $(ROOTDIR)/build/$1 $2
+	$(STRIP) $(ROOTDIR)/build/$1
 endef
 
 define LinkLio
 $1: $2
 	$(CXX) -shared -fPIC $2 -o $(ROOTDIR)/build/$1
+	$(STRIP) $(ROOTDIR)/build/$1
 endef
 

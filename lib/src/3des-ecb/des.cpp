@@ -718,6 +718,10 @@ std::string Des::desDecrypt(std::string str) {
 		des(en_out_put, key3, en_data, DES_DECRYPT);
 		des(en_data, key2, en_out_put, DES_ENCRYPT);
 		des(en_out_put, key1, en_data, DES_DECRYPT);
+		if (i == block -1) {
+			int j = 7;
+			while (j > 0 && en_data[j] < 8) en_data[j--] = 0;
+		}
 		result += en_data;
 	}
 

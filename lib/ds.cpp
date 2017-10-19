@@ -341,7 +341,7 @@ static int ds_db_prepare(stTableRecord_t *tr) {
 		if (!ds_table_exsit(tblops[i].tblname)) {
 			ds_create_table(tblops[i].tblname);
 
-			if (strcmp(tblops[i].tblname, "basicinfo") == 0) {
+			if (strcmp(tblops[i].tblname, "basicinfo") == 0 && tr != NULL) {
 				ds_insert_record("basicinfo",  tr);
 			}
 		}
@@ -435,7 +435,7 @@ static int ds_sqlite3_exec_callback(void *data, int argc, char **argv, char **az
 static int ds_sqlite3_exec(const char *buf, void *data) {
 	char *zErrMsg = NULL;
 
-	//log_debug("[%s] %s\n", __func__, buf);
+	log_debug("[%s] %s\n", __func__, buf);
 
 	int rc	= sqlite3_exec((sqlite3 *)ds.db, buf, ds_sqlite3_exec_callback, data, &zErrMsg);
 
