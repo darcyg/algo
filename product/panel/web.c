@@ -200,6 +200,11 @@ static void web_render_center(httpd *server, httpReq *req) {
 		"		<div id=\"center\">\n"
 	);
 	web_render_menu(server, req);
+	/*
+	httpdPrintf(server, req, (char*)
+		"		<div style=\"clear:both\">\n"
+	);
+	*/
 	web_render_content(server, req);
 
 	httpdPrintf(server, req, (char*)
@@ -208,7 +213,7 @@ static void web_render_center(httpd *server, httpReq *req) {
 }
 static void web_render_menu(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char*)
-		"			<div id=\"menu\">\n"
+		"			<div id=\"menu\" style=\"width:20%; float: left\">\n"
 	);
 
 
@@ -217,12 +222,12 @@ static void web_render_menu(httpd *server, httpReq *req) {
 	);
 
 	stMenuItem_t ms[] = {
-		{"#", "Status",			"Current Status",		0,			NULL},
-		{"#", "Import",			"Import DataBase",	0,			NULL},
-		{"#", "Export",			"Export DataBase",	0,			NULL},
-		{"#", "Modify",			"Modify DataBase",	0,			NULL},
-		{"#", "Admin",			"Setting Admin",		0,			NULL},
-		{"#", "About",			"About Info",				0,			NULL},
+		{"4.jpg", "Status",			"Current Status",		0,			NULL},
+		{"4.jpg", "Import",			"Import DataBase",	0,			NULL},
+		{"4.jpg", "Export",			"Export DataBase",	0,			NULL},
+		{"4.jpg", "Modify",			"Modify DataBase",	0,			NULL},
+		{"4.jpg", "Admin",			"Setting Admin",		0,			NULL},
+		{"4.jpg", "About",			"About Info",				0,			NULL},
 	};
 
 	int cnt = sizeof(ms)/sizeof(ms[0]);
@@ -231,18 +236,15 @@ static void web_render_menu(httpd *server, httpReq *req) {
 		stMenuItem_t *mi = &ms[i];
 	httpdPrintf(server, req, (char *)
 		"					<li>\n"
-		"						<div style=\"cursor:pointer\">\n"
-		"							<image>");
-													httpdPrintf(server, req, mi->img);
-													httpdPrintf(server, req, (char *)"</image>\n"
-		"							<p><strong>");
-															httpdPrintf(server, req, mi->menuname);
-															httpdPrintf(server, req, (char *)"</strong></p>\n"
-		"							<p>");
-										httpdPrintf(server, req, mi->description);
-										httpdPrintf(server, req, (char *)"</p>\n"
+		"						<div style=\"cursor:pointer\" align=\"center\">\n"
+		"							<div style=\"position:relative;\"><img src=\"image/%s\" style=\"position:absolute;top:0; left:0;clip:rect(0px 200px 400px 0px)\"></img></div>\n"
+		"							<p><strong>%s</strong></p>\n"
+		"							<p><strong>%s</strong></p>\n"
 		"						</div>\n"
-		"					</li>\n"
+		"					</li>\n",
+		mi->img,
+		mi->menuname,
+		mi->description
 	);
 	}
 	httpdPrintf(server, req, (char *)
@@ -258,16 +260,49 @@ static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 	stReq_t *r = (stReq_t *)arg;
 	httpd		*server = r->server;
 	httpReq *req = r->request;
+	char *tblname = r->tblname;
 
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+
+
+	
 	httpdPrintf(server, req, (char *)
 		"							<tr>\n"
-		"								<td>%d</td>\n"
-		"								<td>%s</td>\n"
-		"								<td>%d</td>\n"
-		"								<td>%s</td>\n"
+	);
+	char *ptr = (char *)tr;
+	int i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+				httpdPrintf(server, req, (char *)
+					"								<th>%d</th>\n", *ptr);
+					ptr += ii->len * 1;
+			} else {
+				httpdPrintf(server, req, (char *)
+					"								<th>%s</th>\n", ptr);
+					ptr += ii->len * 1;
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+				httpdPrintf(server, req, (char *)
+					"								<th>%d</th>\n", *(int*)ptr);
+					ptr += ii->len * 4;
+			} else {
+				httpdPrintf(server, req, (char *)
+					"								<th>%s</th>\n", "-");
+					ptr += ii->len * 4;
+			}
+		}
+	}
+	httpdPrintf(server, req, (char *)
 		"								<td><button>-</button>  <button>m</button> <button>+</button></td>\n"
-		"							</tr>\n",
-		tr->log.timestamp,tr->log.module, tr->log.level, tr->log.content
+	);
+
+	httpdPrintf(server, req, (char *)
+		"							</tr>\n"
 	);
 
 	return 0;
@@ -276,7 +311,7 @@ static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 
 static void web_render_content(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char*)
-		"			<div id=\"content\">\n"
+		"			<div id=\"content\"  style=\"width:70%; float:right\">\n"
 	);
 
 
@@ -385,17 +420,24 @@ static void web_render_modify(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"table\">\n"
 		"						<table border=\"1\">\n"
-		"							<tr>\n"
-		"								<th>Index</th>\n"
-		"								<th>Name</th>\n"
-		"								<th>Value</th>\n"
-		"								<th>Address</th>\n"
-		"								<th>Info</th>\n"
+		"							<tr>\n");
+	
+	//const char *tblname = "basicinfo";
+	const char *tblname = "log";
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+	httpdPrintf(server, req, (char *)
+		"								<th>%s(%s[%d])</th>\n", ii->name, ii->type, ii->len);
+	}
+	httpdPrintf(server, req, (char *)
 		"								<th>Opeation</th>\n"
 		"							</tr>\n");
 
-		stReq_t r = {server, req};
-		ds_search_record("log", db_test_search_callback_1, &r, "1 = 1 limit 10");
+		stReq_t r = {server, req, tblname};
+		ds_search_record(tblname, db_test_search_callback_1, &r, "1 = 1 limit 10");
 
 		/*
 		"							<tr>\n");

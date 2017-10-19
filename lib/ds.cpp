@@ -802,4 +802,20 @@ int ds_search_record(const char *tblname,
 }
 
 
+int ds_table_info(const char *tblname, stTableInfo_t *ti) {
+	int i = 0;
+	int cnt = sizeof(tblops)/sizeof(tblops[0]);
+	for (i = 0; i < cnt; i++) {
+		stTableOperaion_t *to = &tblops[i];
+		if (strcmp(tblname, to->tblname) == 0) {
+			ti->tblname = to->tblname;
+			ti->itemcnt = to->itemcnt;
+			ti->items = (stItemInfo_t*)to->items;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
 

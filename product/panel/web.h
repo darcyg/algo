@@ -50,6 +50,7 @@ typedef struct stWebEnv {
 typedef struct stReq {
 	httpd *server;
 	httpReq *request;
+	char		*tblname;
 }stReq_t;
 
 typedef struct stMenuItem {

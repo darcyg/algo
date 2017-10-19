@@ -131,6 +131,20 @@ typedef union stTableRecord {
 #pragma pack(pop)
 
 
+typedef struct stItemInfo {
+	const char *name;
+	const char *type;
+	int					len;
+	int					primary;
+}stItemInfo_t;
+
+typedef struct stTableInfo {
+	const	char		*tblname;
+	int						itemcnt;
+	stItemInfo_t	*items;
+}stTableInfo_t;
+
+
 typedef int (*SEARCH_CB)(stTableRecord_t *, void *);
 
 /* ds_init
@@ -208,6 +222,16 @@ int ds_search_record(const char *tblname,
 										 void *arg,
 										 const char *where,
 										 ...);
+
+/* ds_table_info
+ * 
+ * 查询表信息
+ *
+ * @param[in]  tblname 表名称　
+ * 
+ * @return 0 -> ok, < 0 -> 不存在
+ */
+int ds_table_info(const char *tblname, stTableInfo_t *ti);
 
 #ifdef __cplusplus
 }
