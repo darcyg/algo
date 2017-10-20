@@ -23,6 +23,7 @@ static void web_render_center(httpd *server, httpReq *req);
 static void web_render_footer(httpd *server, httpReq *req);
 static void web_render_menu(httpd *server, httpReq *req);
 static void web_render_content(httpd *server, httpReq *req);
+static void web_render_other(httpd *server, httpReq *req);
 
 
 static void web_render_status(httpd *server, httpReq *req);
@@ -181,8 +182,15 @@ static void web_render_header(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"<html>\n"\
 		"	<head>\n"\
+		"		<meta charset=\"UTF-8\">\n"
+		"		<title>SmartDoor</title>\n"
+		"		<link href=\"css/dr.css\" rel=\"stylesheet\" type=\"text/css\"/>\n"
+		"		<script language=\"JavaScript\" src=\"js/jquery-3.2.1.min.js\">\n"\
+		"		</script>\n"\
+		"		<script language=\"JavaScript\" src=\"js/dr.js\">\n"\
+		"		</script>\n"\
 		"	</head>\n"\
-		"	<body>\n"\
+		"	<body><div id=\"body\">\n"\
 		"		<div id=\"header\">\n"\
 		"		</div>\n"
 	);
@@ -191,7 +199,7 @@ static void web_render_footer(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"		<div id=\"footer\">\n" \
 		"		</div>\n"\
-		"	</body>\n"\
+		"	</div></body>\n"\
 		"</html>\n"
 	);
 }
@@ -206,6 +214,7 @@ static void web_render_center(httpd *server, httpReq *req) {
 	);
 	*/
 	web_render_content(server, req);
+	web_render_other(server, req);
 
 	httpdPrintf(server, req, (char*)
 		"		</div>\n"
@@ -213,7 +222,7 @@ static void web_render_center(httpd *server, httpReq *req) {
 }
 static void web_render_menu(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char*)
-		"			<div id=\"menu\" style=\"width:20%; float: left\">\n"
+		"			<div id=\"menu\">\n"
 	);
 
 
@@ -223,11 +232,11 @@ static void web_render_menu(httpd *server, httpReq *req) {
 
 	stMenuItem_t ms[] = {
 		{"4.jpg", "Status",			"Current Status",		0,			NULL},
-		{"4.jpg", "Import",			"Import DataBase",	0,			NULL},
-		{"4.jpg", "Export",			"Export DataBase",	0,			NULL},
+		{"4.jpg", "Import/Export",			"Import/Export DataBase",	0,			NULL},
+		//{"4.jpg", "Export",			"Export DataBase",	0,			NULL},
 		{"4.jpg", "Modify",			"Modify DataBase",	0,			NULL},
 		{"4.jpg", "Admin",			"Setting Admin",		0,			NULL},
-		{"4.jpg", "About",			"About Info",				0,			NULL},
+		//{"4.jpg", "About",			"About Info",				0,			NULL},
 	};
 
 	int cnt = sizeof(ms)/sizeof(ms[0]);
@@ -236,13 +245,13 @@ static void web_render_menu(httpd *server, httpReq *req) {
 		stMenuItem_t *mi = &ms[i];
 	httpdPrintf(server, req, (char *)
 		"					<li>\n"
-		"						<div style=\"cursor:pointer\" align=\"center\">\n"
-		"							<div style=\"position:relative;\"><img src=\"image/%s\" style=\"position:absolute;top:0; left:0;clip:rect(0px 200px 400px 0px)\"></img></div>\n"
+		"						<div>\n"
+		"							<div><img src=\"image/f-%d.jpg\"></img></div>\n"
 		"							<p><strong>%s</strong></p>\n"
-		"							<p><strong>%s</strong></p>\n"
+		"							<p>%s</p>\n"
 		"						</div>\n"
 		"					</li>\n",
-		mi->img,
+		i+1,
 		mi->menuname,
 		mi->description
 	);
@@ -278,27 +287,27 @@ static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 		if (strcmp(ii->type, "char") == 0) {
 			if (ii->len == 1) {
 				httpdPrintf(server, req, (char *)
-					"								<th>%d</th>\n", *ptr);
+					"								<td>%d</td>\n", *ptr);
 					ptr += ii->len * 1;
 			} else {
 				httpdPrintf(server, req, (char *)
-					"								<th>%s</th>\n", ptr);
+					"								<td>%s</td>\n", ptr);
 					ptr += ii->len * 1;
 			}
 		} else if (strcmp(ii->type, "int") == 0) {
 			if (ii->len == 1) {
 				httpdPrintf(server, req, (char *)
-					"								<th>%d</th>\n", *(int*)ptr);
+					"								<td>%d</td>\n", *(int*)ptr);
 					ptr += ii->len * 4;
 			} else {
 				httpdPrintf(server, req, (char *)
-					"								<th>%s</th>\n", "-");
+					"								<td>%s</td>\n", "-");
 					ptr += ii->len * 4;
 			}
 		}
 	}
 	httpdPrintf(server, req, (char *)
-		"								<td><button>-</button>  <button>m</button> <button>+</button></td>\n"
+		"								<td class=\"op\"><button id=\"del\">-</button>  <button id=\"mod\">m</button> <button id=\"add\">+</button></td>\n"
 	);
 
 	httpdPrintf(server, req, (char *)
@@ -311,7 +320,7 @@ static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 
 static void web_render_content(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char*)
-		"			<div id=\"content\"  style=\"width:70%; float:right\">\n"
+		"			<div id=\"content\">\n"
 	);
 
 
@@ -389,7 +398,7 @@ static void web_render_modify(httpd *server, httpReq *req) {
 	);
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"title\">\n"
-		"						<p display=\"inline\">ModifyDataBase</p>\n"
+		"						<strong display=\"inline\">ModifyDataBase:</strong>\n"
 		"						<select type=\"select\" display=\"inline\">\n");
 
 		int i = 0;
@@ -398,10 +407,9 @@ static void web_render_modify(httpd *server, httpReq *req) {
 		}
 	httpdPrintf(server, req, (char *)
 		"						</select>\n"
-		"						<strong>Total 100, </strong>\n"
-		"						<strong>Current 10</strong>\n"
-		"						<button>Prev</button>\n"
-		"						<button>Next</button>\n"
+		"						<button id=\"prev\">Prev</button>\n"
+		"						<button><strong>10/100</strong></button>\n"
+		"						<button id=\"next\">Next</button>\n"
 		"					</div>\n"
 	);
 
@@ -412,14 +420,10 @@ static void web_render_modify(httpd *server, httpReq *req) {
 	);
 
 
-	//httpdPrintf(server, req, (char *)
-	//	"				<img src=\"image/2014020715592025845.jpg\"  alt=\"ShangHai\" />\n"
-	//);
-
 
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"table\">\n"
-		"						<table border=\"1\">\n"
+		"						<table >\n"
 		"							<tr>\n");
 	
 	//const char *tblname = "basicinfo";
@@ -550,5 +554,17 @@ static void web_render_about(httpd *server, httpReq *req) {
 	);
 }
 
+
+static void web_render_other(httpd *server, httpReq *req) {
+	httpdPrintf(server, req, (char *)
+		"				<div id=\"other\">\n"
+		"					<div>\n"
+		"						<strong>Software Version: 1.0.0 Build 20171020</strong>\n"
+		"					</div>\n"
+		"				</div>\n"
+	);
+
+
+}
 
 

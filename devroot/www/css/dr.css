@@ -1,0 +1,117 @@
+* {
+	margin: 0;
+}
+
+
+body {
+	margin: 1% 0% 1% 0%;
+	background-color : #ff6666;
+	width :1280px;
+	height:800px;
+	//text-align:center;
+	position:relative;
+	padding:1% 15% 1% 15%;
+}
+
+#body {
+}
+
+div {
+	//outline:#00FF00 dotted thick;
+}
+
+#menu {
+	width:20%;
+	float:left;
+}
+
+button {
+	cursor:pointer;
+}
+
+#menu li {
+	list-style:none;
+	cursor:pointer;
+}
+
+#menu li div {
+	background-color : #ffffff;
+	text-align:center;
+	margin: 0px 0px 10px 0px;
+	padding : 10px 20px 10px 10px;
+	//border:2px solid;
+	border-radius:15px;
+
+}
+
+
+#content {
+	width: 78%;
+	float: right;
+}
+
+
+#content .disarea {
+	background-color : #ffffff;
+	height: 100%;
+	border-radius:15px;
+}
+
+
+#content .disarea .title {
+	margin: 0px 2px 8px 5px;
+}
+
+
+#content .disarea .hline {
+	margin: 8px 2px 8px 5px;
+}
+#content .disarea .hline hr {
+	border-color: #ff0033;
+}
+
+table {
+	//display: table;
+	//border-spacing:2px;
+	//border-color:grey;
+	border-collapse:collapse;
+	width:100%;
+	text-align:center;
+}
+
+#content .disarea .table {
+	margin: 8px 2px 8px 5px;
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	//color:#ffffff;
+	//border-width: 1px;
+	//border-color: #ffffff;
+}
+#content .disarea .table tr {
+	background-color:#ffffff;
+}
+#content .disarea .table th {
+	//background-color:#ffffff;
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #ff6666;
+}
+
+#content .disarea .table td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #ff6666;
+}
+
+#other {
+	clear:both;	
+	text-align:right;
+	text-color: #ffffff;
+}
+
+#other p {
+	margin: 0px 2px 0px 2px;
+	padding: 8px;
+};
