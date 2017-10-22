@@ -29,6 +29,14 @@ static const char *tablenames[] = {
 	"device_alarm",
 	"log",
 };
+/* 1   1   1   */
+/* add mod del*/
+static int tableops[] = {
+	0x7, 0x7, 0x7, 0x7, 0x7,
+	//0x7, 0x7, 0x7
+	0x1, 0x1, 0x1, 0x1
+	//0x0, 0x0, 0x0, 0x0
+};
 
 
 static void center_func(httpd *server, httpReq *req);
@@ -38,15 +46,18 @@ static void curr_func(httpd *server, httpReq *req);
 static void add_func(httpd *server, httpReq *req);
 static void del_func(httpd *server, httpReq *req);
 static void mod_func(httpd *server, httpReq *req);
+static void menu_func(httpd *server, httpReq *req);
 static void web_render_header(httpd *server, httpReq *req);
 static void web_render_center(httpd *server, httpReq *req);
 static void web_render_footer(httpd *server, httpReq *req);
 static void web_render_menu(httpd *server, httpReq *req);
+static void web_render_middle(httpd *server, httpReq *req);
 static void web_render_content(httpd *server, httpReq *req);
 static void web_render_other(httpd *server, httpReq *req);
 
 
 static void web_render_status(httpd *server, httpReq *req);
+static void web_render_import_export(httpd *server, httpReq *req);
 static void web_render_import(httpd *server, httpReq *req);
 static void web_render_export(httpd *server, httpReq *req);
 static void web_render_modify(httpd *server, httpReq *req);
@@ -58,11 +69,12 @@ static void web_render_table(httpd *server, httpReq *req, const char *tblname, i
 
 static stContentHandler_t chs[] = {
 	{PAGE_STATUS, web_render_status},
-	{PAGE_IMPORT, web_render_import},
-	{PAGE_EXPORT, web_render_export},
+	//{PAGE_IMPORT, web_render_import},
+	//{PAGE_EXPORT, web_render_export},
+	{PAGE_IMPORT_EXPORT, web_render_import_export},
 	{PAGE_MODIFY, web_render_modify},
 	{PAGE_ADMIN,	web_render_admin},
-	{PAGE_ABOUT,  web_render_about},
+	//{PAGE_ABOUT,  web_render_about},
 };
 
 static stWebNode_t wns[] = {
@@ -83,6 +95,7 @@ static stWebNode_t wns[] = {
 	{PT_CFUNC, "/",				"add",				0,						NULL, add_func,				INVALID_ITEM, INVALID_ITEM},
 	{PT_CFUNC, "/",				"del",				0,						NULL, del_func,				INVALID_ITEM, INVALID_ITEM},
 	{PT_CFUNC, "/",				"mod",				0,						NULL, mod_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/",				"menu",				0,						NULL, menu_func,				INVALID_ITEM, INVALID_ITEM},
 
 	{PT_FILE,	"/",				"error",			0,						NULL, INVALID_ITEM,		"error.html",	INVALID_ITEM},
 };
@@ -211,8 +224,9 @@ static void web_render_header(httpd *server, httpReq *req) {
 		"<html>\n"\
 		"	<head>\n"\
 		"		<meta charset=\"UTF-8\">\n"
-		"		<title>SmartDoor</title>\n"
-		"		<link href=\"css/dr.css\" rel=\"stylesheet\" type=\"text/css\"/>\n"
+		//"		<title>智能门禁系统</title>\n"
+		"		<title>智能门禁</title>\n"
+		"		<link href=\"css/drr.css\" rel=\"stylesheet\" type=\"text/css\"/>\n"
 		"		<script language=\"JavaScript\" src=\"js/jquery-3.2.1.min.js\">\n"\
 		"		</script>\n"\
 		"		<script language=\"JavaScript\" src=\"js/dr.js\">\n"\
@@ -241,6 +255,7 @@ static void web_render_center(httpd *server, httpReq *req) {
 		"		<div style=\"clear:both\">\n"
 	);
 	*/
+	web_render_middle(server, req);
 	web_render_content(server, req);
 	web_render_other(server, req);
 
@@ -259,11 +274,11 @@ static void web_render_menu(httpd *server, httpReq *req) {
 	);
 
 	stMenuItem_t ms[] = {
-		{"4.jpg", "Status",			"Current Status",		0,			NULL},
-		{"4.jpg", "Import/Export",			"Import/Export DataBase",	0,			NULL},
+		{"4.jpg", "Status",			"当前状态",		0,			NULL},
+		{"4.jpg", "Import/Export",			"导入/导出",	0,			NULL},
 		//{"4.jpg", "Export",			"Export DataBase",	0,			NULL},
-		{"4.jpg", "Modify",			"Modify DataBase",	0,			NULL},
-		{"4.jpg", "Admin",			"Setting Admin",		0,			NULL},
+		{"4.jpg", "Modify",			"修改",	0,			NULL},
+		{"4.jpg", "Admin",			"管理设置",		0,			NULL},
 		//{"4.jpg", "About",			"About Info",				0,			NULL},
 	};
 
@@ -293,31 +308,20 @@ static void web_render_menu(httpd *server, httpReq *req) {
 		"			</div>\n"
 	);
 }
+
+static void web_render_middle(httpd *server, httpReq *req) {
+	httpdPrintf(server, req, (char*)
+		"			<div id=\"middle\">a</div>\n"
+	);
+}
+
 static void web_render_content(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char*)
 		"			<div id=\"content\">\n"
 	);
 
-	int page;
+	menu_func(server, req);
 
-	httpVar *val = httpdGetVariableByName(server, req, "page");
-	if (val == NULL) {
-		page = 3;
-	} else {
-		page = atoi(val->value);
-	}
-
-
-
-
-	int i = 0;
-	for (i = 0; i < sizeof(chs)/sizeof(chs[0]); i++) {
-		stContentHandler_t *ch = &chs[i];
-		if (ch->page == page) {
-			ch->function(server, req);
-			break;
-		}
-	}
 
 	httpdPrintf(server, req, (char *)
 		"			</div>\n"
@@ -325,6 +329,11 @@ static void web_render_content(httpd *server, httpReq *req) {
 }
 
 static void web_render_status(httpd *server, httpReq *req) {
+	httpdPrintf(server, req, (char *)
+		"				<div >开发中...</div>\n"
+	);
+
+
 }
 static void web_render_import(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
@@ -364,6 +373,59 @@ static void web_render_import(httpd *server, httpReq *req) {
 
 
 }
+
+static void web_render_import_export(httpd *server, httpReq *req) {
+	httpdPrintf(server, req, (char *)
+		"				<div class=\"disarea\">\n"
+	);
+	httpdPrintf(server, req, (char *)
+		"					<div class=\"title\">\n"
+		"						<p>ImportDataBase</p>\n"
+		"					</div>\n"
+	);
+
+	httpdPrintf(server, req, (char *)
+		"					<div class=\"inputfile\">\n"
+		"						<form method=\"post\" action=\"importdb\">\n"
+		"							<input type=\"text\" size=\"20\"></input>\n"
+		"							<input type=\"button\" value=\"Import\"></input>\n"
+		"						</form>\n"
+		"					</div>\n"
+	);
+
+	httpdPrintf(server, req, (char *)
+		"					<div class=\"title\">\n"
+		"						<p>ExportDataBase</p>\n"
+		"					</div>\n"
+	);
+
+	httpdPrintf(server, req, (char *)
+		"					<div class=\"inputfile\">\n"
+		"						<form method=\"post\" action=\"importdb\">\n"
+		"							<button type=\"button\">DownLoad</button>\n"
+		"						</form>\n"
+		"					</div>\n"
+	);
+
+
+	httpdPrintf(server, req, (char *)
+		"					<div class=\"progress\">\n"
+		"					</div>\n"
+	);
+
+	httpdPrintf(server, req, (char *)
+		"					<div class=\"Submit\">\n"
+		"						<input type=\"button\" value=\"Submit\"></input>\n"
+		"					</div>\n"
+	);
+
+
+
+	httpdPrintf(server, req, (char *)
+		"				</div>\n"
+	);
+
+}
 static void web_render_modify(httpd *server, httpReq *req) {
 
 
@@ -372,7 +434,7 @@ static void web_render_modify(httpd *server, httpReq *req) {
 	);
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"title\">\n"
-		"						<strong display=\"inline\">ModifyDataBase:</strong>\n"
+		"						<strong display=\"inline\">修改数据表:</strong>\n"
 		"						<select type=\"select\" display=\"inline\" id=\"tblname\">\n");
 
 		int i = 0;
@@ -381,10 +443,10 @@ static void web_render_modify(httpd *server, httpReq *req) {
 		}
 	httpdPrintf(server, req, (char *)
 		"						</select>\n"
-		"						<button id=\"prev\">Prev</button>\n"
+		"						<button id=\"prev\">前一页</button>\n"
 		"						<button><strong id=\"curr\">10/100</strong></button>\n"
-		"						<button id=\"next\">Next</button>\n"
-		"						<button id=\"add\">Add</button>\n"
+		"						<button id=\"next\">后一页</button>\n"
+		"						<button id=\"add\">增加</button>\n"
 		"					</div>\n"
 	);
 
@@ -400,7 +462,7 @@ static void web_render_modify(httpd *server, httpReq *req) {
 		"					<div class=\"table\" id=\"moditbl\">\n"
 	);
 
-	const char *tblname = "log";
+	const char *tblname = "person";
 	web_render_table(server, req, tblname, 0, 10);
 
 	httpdPrintf(server, req, (char *)
@@ -508,15 +570,30 @@ static void web_render_other(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"				<div id=\"other\">\n"
 		"					<div>\n"
-		"						<strong>Software Version: 1.0.0 Build 20171020</strong>\n"
+		"						<strong>Software Version: %d.%d.%d Build %s %s</strong>\n"
 		"					</div>\n"
-		"				</div>\n"
+		"				</div>\n",
+		MAJOR,MINOR,PATCH,DATE,TIME
 	);
 
 
 }
 
 //////////////////////////////////////////////////////////////////////
+static int web_get_ops(const char *tblname) {
+	int i = 0;
+	int cnt = sizeof(tablenames)/sizeof(tablenames[0]);
+	for (i = 0; i < cnt; i++) {
+		if (strcmp(tblname, tablenames[i]) == 0) {
+			break;
+		}
+	}
+	if (i == cnt) {
+		return 0;
+	}
+	printf("ops %d[%s]\n", tableops[i], tblname);
+	return tableops[i];
+}
 static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 	stReq_t *r = (stReq_t *)arg;
 	httpd		*server = r->server;
@@ -527,8 +604,8 @@ static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 	int ret = ds_table_info(tblname, &ti);
 	ret = ret;
 
+	int ops = web_get_ops(tblname);
 
-	
 	httpdPrintf(server, req, (char *)
 		"							<tr>\n"
 	);
@@ -558,9 +635,27 @@ static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 			}
 		}
 	}
+
+	if (ops == 0x7) {
 	httpdPrintf(server, req, (char *)
-		"								<td class=\"op\"><button class=\"del\">-</button>  <button class=\"mod\">m</button>\n"
+		"								<td class=\"op\"><button class=\"del\">删除</button>  <button class=\"mod\">修改</button>\n"
 	);
+	} else if (ops == 0x0) {
+	httpdPrintf(server, req, (char *)
+		"								<td class=\"op\"><button disabled=\"disabled\">删除</button>  "
+		"<button disabled=\"disabled\">修改</button>\n"
+	);
+	} else if (ops == 0x1) {
+	httpdPrintf(server, req, (char *)
+		"								<td class=\"op\"><button class=\"del\">删除</button>\n"
+		"<button disabled=\"disabled\">修改</button>\n"
+	);
+	} else {
+	httpdPrintf(server, req, (char *)
+		"								<td class=\"op\"><button disabled=\"disabled\">删除</button>  "
+		"<button disabled=\"disabled\">修改</button>\n"
+	);
+	}
 
 	httpdPrintf(server, req, (char *)
 		"							</tr>\n"
@@ -785,6 +880,7 @@ static void curr_func(httpd *server, httpReq *req) {
 static void del_func(httpd *server, httpReq *req) {
 	httpdDumpVariables(server, req);
 
+
 	httpVar *val = httpdGetVariableByName(server, req, "curr");
 	if (val == NULL) {
 		httpdPrintf(server, req, (char *)
@@ -805,6 +901,14 @@ static void del_func(httpd *server, httpReq *req) {
 	}
 	char tblname[64];
 	strcpy(tblname, val->value);
+
+	int ops = web_get_ops(tblname);
+	if ((ops &0x1) == 0) {
+		httpdPrintf(server, req, (char *)
+			"<div>错误: 没有执行的权限!</div>\n"
+		);
+		return;
+	}
 
 	int num = ds_table_total_record_num(tblname);
 	int total = (num + 10-1)/10;
@@ -895,6 +999,31 @@ static void del_func(httpd *server, httpReq *req) {
 
 
 
+static void menu_func(httpd *server, httpReq *req) {
+	int page;
+
+	httpVar *val = httpdGetVariableByName(server, req, "page");
+	if (val == NULL) {
+		page = 2;
+	} else {
+		page = atoi(val->value);
+	}
+	printf("page is %d\n", page);
+
+
+
+
+	int i = 0;
+	for (i = 0; i < sizeof(chs)/sizeof(chs[0]); i++) {
+		stContentHandler_t *ch = &chs[i];
+		if (ch->page == page) {
+			ch->function(server, req);
+			break;
+		}
+	}
+
+}
+
 static void mod_func(httpd *server, httpReq *req) {
 	httpdDumpVariables(server, req);
 
@@ -917,6 +1046,16 @@ static void mod_func(httpd *server, httpReq *req) {
 	}
 	char tblname[64];
 	strcpy(tblname, val->value);
+
+	int ops = web_get_ops(tblname);
+	if ((ops &0x02) == 0) {
+		httpdPrintf(server, req, (char *)
+			"<div>错误: 没有执行的权限!</div>\n"
+		);
+		return;
+	}
+
+
 
 	int num = ds_table_total_record_num(tblname);
 	int total = (num + 10-1)/10;
@@ -1040,6 +1179,16 @@ static void add_func(httpd *server, httpReq *req) {
 	}
 	char tblname[64];
 	strcpy(tblname, val->value);
+
+	int ops = web_get_ops(tblname);
+	if ((ops &0x4) == 0) {
+		httpdPrintf(server, req, (char *)
+			"<div>错误: 没有执行的权限!</div>\n"
+		);
+		return;
+	}
+
+
 
 	int num = ds_table_total_record_num(tblname);
 	int total = (num + 10-1)/10;

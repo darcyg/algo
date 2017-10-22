@@ -103,8 +103,8 @@ $(function(){
 			var clickObj = $(this);
 			var btntxt = clickObj.html();
 
-			if (btntxt == "m") {
-				$(clickObj).html("M?");
+			if (btntxt == "修改") {
+				$(clickObj).html("修改..");
 				$(clickObj).parent().parent().children("td").not(".op").click(function(){ 
 					var me = $(this); 
 					content = me.html(); 
@@ -153,7 +153,7 @@ $(function(){
 						console.log("Requst /curr Complete!");
 					});
 				}
-				$(clickObj).html("m");
+				$(clickObj).html("修改");
 				$(clickObj).parent().parent().children("td").not(".op").attr('onclick', '').unbind('click');
 			}
 		});
@@ -162,97 +162,122 @@ $(function(){
 
 	}
 
-	$("#prev").click(function() {
-		var clickObj = $(this);
-		var btntxt = clickObj.html();
+	function modinit() {
+		$("#prev").click(function() {
+				var clickObj = $(this);
+				var btntxt = clickObj.html();
 
-		var curr = $("#curr").html();
-		curr = curr.substring(0,curr.search("/"));
-		var tbl  = $("#tblname option:selected").val();
-		var arg  = {"curr": curr, "tblname" : tbl};
+				var curr = $("#curr").html();
+				curr = curr.substring(0,curr.search("/"));
+				var tbl  = $("#tblname option:selected").val();
+				var arg  = {"curr": curr, "tblname" : tbl};
 
 
-		DoRequest("/prev", arg, function(data) { //success
-			//console.log("response:" + data);
-			$("#moditbl").html(data);
-			$("#curr").html($("#aurr").html());
-			tblinit();
-		}, function(stat) { //error
-			console.log("Requst /Prev Error:" + stat);
-		}, function(stat) {
-			console.log("Requst /Prev Complete!");
+				DoRequest("/prev", arg, function(data) { //success
+					//console.log("response:" + data);
+					$("#moditbl").html(data);
+					$("#curr").html($("#aurr").html());
+					tblinit();
+					}, function(stat) { //error
+					console.log("Requst /Prev Error:" + stat);
+					}, function(stat) {
+					console.log("Requst /Prev Complete!");
+					});
+				});
+
+		$("#next").click(function() {
+				var clickObj = $(this);
+				var btntxt = clickObj.html();
+
+				var curr = $("#curr").html();
+				curr = curr.substring(0,curr.search("/"));
+				var tbl  = $("#tblname option:selected").val();
+				var arg  = {"curr": curr, "tblname" : tbl};
+
+				DoRequest("/next", arg, function(data) { //success
+					//console.log("response:" + data);
+					$("#moditbl").html(data);
+					$("#curr").html($("#aurr").html());
+					tblinit();
+					}, function(stat) { //error
+					console.log("Requst /next Error:" + stat);
+					}, function(stat) {
+					console.log("Requst /next Complete!");
+					});
+				});
+
+		$("#add").click(function() {
+				var clickObj = $(this);
+				var btntxt = clickObj.html();
+
+				var curr = $("#curr").html();
+				curr = curr.substring(0,curr.search("/"));
+				var tbl  = $("#tblname option:selected").val();
+				var arg  = {"curr": curr, "tblname" : tbl};
+
+				DoRequest("/add", arg, function(data) { //success
+					//console.log("response:" + data);
+					$("#moditbl").html(data);
+					$("#curr").html($("#aurr").html());
+					tblinit();
+					}, function(stat) { //error
+					console.log("Requst /next Error:" + stat);
+					}, function(stat) {
+					console.log("Requst /next Complete!");
+					});
+
+				});
+		$("#tblname").change(function() {
+				var clickObj = $(this);
+				var btntxt = clickObj.html();
+
+				//var curr = $("#curr").html();
+				//curr = curr.substring(0,curr.search("/"));
+				var curr = 1;
+				var tbl  = $("#tblname option:selected").val();
+				var arg  = {"curr" : curr, "tblname" : tbl};
+
+				//alert(JSON.stringify(arg));
+
+				DoRequest("/curr", arg, function(data) { //success
+					//console.log("response:" + data);
+					$("#moditbl").html(data);
+					$("#curr").html($("#aurr").html());
+					tblinit();
+					}, function(stat) { //error
+					console.log("Requst /curr Error:" + stat);
+					}, function(stat) {
+					console.log("Requst /curr Complete!");
+					});
 		});
-	});
 
-	$("#next").click(function() {
-		var clickObj = $(this);
-		var btntxt = clickObj.html();
-
-		var curr = $("#curr").html();
-		curr = curr.substring(0,curr.search("/"));
-		var tbl  = $("#tblname option:selected").val();
-		var arg  = {"curr": curr, "tblname" : tbl};
-
-		DoRequest("/next", arg, function(data) { //success
-			//console.log("response:" + data);
-			$("#moditbl").html(data);
-			$("#curr").html($("#aurr").html());
-			tblinit();
-		}, function(stat) { //error
-			console.log("Requst /next Error:" + stat);
-		}, function(stat) {
-			console.log("Requst /next Complete!");
-		});
-	});
-
-	$("#add").click(function() {
-		var clickObj = $(this);
-		var btntxt = clickObj.html();
-
-		var curr = $("#curr").html();
-		curr = curr.substring(0,curr.search("/"));
-		var tbl  = $("#tblname option:selected").val();
-		var arg  = {"curr": curr, "tblname" : tbl};
-
-		DoRequest("/add", arg, function(data) { //success
-			//console.log("response:" + data);
-			$("#moditbl").html(data);
-			$("#curr").html($("#aurr").html());
-			tblinit();
-		}, function(stat) { //error
-			console.log("Requst /next Error:" + stat);
-		}, function(stat) {
-			console.log("Requst /next Complete!");
-		});
-
-	});
-
-	$("#tblname").change(function() {
-		var clickObj = $(this);
-		var btntxt = clickObj.html();
-
-		//var curr = $("#curr").html();
-		//curr = curr.substring(0,curr.search("/"));
-		var curr = 1;
-		var tbl  = $("#tblname option:selected").val();
-		var arg  = {"curr" : curr, "tblname" : tbl};
-
-		//alert(JSON.stringify(arg));
-
-		DoRequest("/curr", arg, function(data) { //success
-		//console.log("response:" + data);
-		$("#moditbl").html(data);
+		tblinit();
 		$("#curr").html($("#aurr").html());
-			tblinit();
+	}
+
+
+	$("#menu ul li").click(function() {
+		var page = $(this).index();
+		var arg  = {"page" : page};
+
+		DoRequest("/menu", arg, function(data) { //success
+		//console.log("response:" + data);
+			$("#content").html(data);
+			//$("#curr").html($("#aurr").html());
+			//tblinit();
+
+			$("#content .disarea").css("height",$("#menu").css("height"));
+			modinit();
 		}, function(stat) { //error
-			console.log("Requst /curr Error:" + stat);
+			console.log("Requst /menu Error:" + stat);
 		}, function(stat) {
-			console.log("Requst /curr Complete!");
+			console.log("Requst /menu Complete!");
 		});
 	});
 
-	tblinit();
-	$("#curr").html($("#aurr").html());
 
+
+	$("#content .disarea").css("height",$("#menu").css("height"));
+	modinit();
 
 }); 

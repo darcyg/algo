@@ -1,0 +1,145 @@
+* {
+	margin: 0;
+	padding: 0;
+	//border:0;
+}
+
+li {
+	list-style:none;
+	cursor:pointer;
+}
+}
+
+button {
+	cursor:pointer;
+}
+
+table {
+	border-collapse:collapse;
+	width:100%;
+	text-align:center;
+}
+
+img {
+}
+
+div {
+	//outline:#00FF00 dotted thick;
+}
+
+body {
+	background-color : #ff6666;
+	width : auto;
+	height: auto;
+	padding:1% 8% 1% 8%;
+}
+
+#body {
+}
+
+#head {
+}
+#center {
+}
+#footer{
+
+}
+
+
+#menu {
+	width:15%;
+	float:left;
+}
+#middle {
+	width:5%;	
+	float :left;
+}
+
+#content {
+	width: 80%;
+	float: left;
+	height:auto;
+}
+
+#other {
+	clear: both;
+	width: auto;
+}
+
+
+#menu li div div img {
+	height:75px;
+	width:100px;
+	border-radius:100%;
+}
+
+#menu li div {
+	background-color : #ffffff;
+	text-align:center;
+	margin: 0px 0px 10px 0px;
+	//padding : 5px 10px 10px 10px;
+	padding : 0px 0px 2px 0px;
+	border-radius:15px;
+}
+
+#menu li div div { 
+	border:2px solid #ffffff;
+	border-radius:100%;
+}
+
+
+
+#content .disarea {
+	//width:max-content;
+  background-color : #ffffff;
+  border-radius:15px;
+	overflow-x: scroll;
+}
+
+
+#content .disarea .title {
+	margin: 0px 2px 8px 5px;
+}
+
+
+#content .disarea .hline {
+	margin: 8px 2px 8px 5px;
+}
+
+
+#content .disarea .hline hr {
+	border-color: #ff0033;
+}
+
+
+
+#content .disarea .table {
+	margin: 8px 2px 8px 5px;
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	//color:#ffffff;
+	//border-width: 1px;
+	//border-color: #ffffff;
+}
+#content .disarea .table tr {
+	background-color:#ffffff;
+}
+#content .disarea .table th {
+	background-color:#ffffee;
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #ff6666;
+}
+
+#content .disarea .table td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #ff6666;
+}
+
+#other {
+	text-align:right;
+	text-color: #ffffff;
+}

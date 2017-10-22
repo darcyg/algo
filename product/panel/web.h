@@ -2,6 +2,7 @@
 #define __WEB_H_
 
 #include "lweb.h"
+#include "version.h"
 
 #ifdef __cplusplus 
 extern "C" {
@@ -64,11 +65,12 @@ typedef struct stMenuItem {
 
 enum {
 	PAGE_STATUS = 0,
-	PAGE_IMPORT = 1,
-	PAGE_EXPORT = 2,
-	PAGE_MODIFY = 3,
-	PAGE_ADMIN  = 4,
-	PAGE_ABOUT  = 5,
+	//PAGE_IMPORT = 1,
+	//PAGE_EXPORT = 2,
+	PAGE_IMPORT_EXPORT = 1,
+	PAGE_MODIFY = 2,
+	PAGE_ADMIN  = 3,
+	//PAGE_ABOUT  = 5,
 };
 
 typedef struct stContentHandler {
