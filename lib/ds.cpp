@@ -57,6 +57,7 @@ enum {
 	CBMODE_SEARCH = 3,
 	CBMODE_DELETE = 4,
 	CBMODE_EXIST	= 5,
+	CBMODE_COUNT  = 6,
 };
 
 
@@ -426,6 +427,9 @@ static int ds_sqlite3_exec_callback(void *data, int argc, char **argv, char **az
 			}
 		}
 		break;
+	case CBMODE_COUNT:
+		ee->ret = atoi(argv[0]);
+		break;
 	default:
 		break;
 	}
@@ -731,7 +735,7 @@ int ds_update_record(const char *tblname, stTableRecord_t *record, const char *w
 	va_end(ap);
 
 	//sprintf(buf + strlen(buf), "where %s;", where);
-	sprintf(buf + strlen(buf), "where %s;", wbuf);
+	sprintf(buf + strlen(buf), "%s;", wbuf);
 
 	stExecEnv_t ee = { CBMODE_UPDATE, to, -1, NULL, NULL};
 	int ret = ds_sqlite3_exec(buf, &ee);
@@ -759,7 +763,7 @@ int ds_delete_record(const char *tblname, const char *where, ...) {
 	va_end(ap);
 
 	//sprintf(buf + strlen(buf), "where %s;", where);
-	sprintf(buf + strlen(buf), "where %s;", wbuf);
+	sprintf(buf + strlen(buf), "%s;", wbuf);
 
 	stExecEnv_t ee = { CBMODE_DELETE, to, -1, NULL, NULL};
 	int ret = ds_sqlite3_exec(buf, &ee);
@@ -791,7 +795,7 @@ int ds_search_record(const char *tblname,
 	va_end(ap);
 
 	//sprintf(buf + strlen(buf), "where %s;", where);
-	sprintf(buf + strlen(buf), "where %s;", wbuf);
+	sprintf(buf + strlen(buf), "%s;", wbuf);
 
 	stExecEnv_t ee = { CBMODE_SEARCH, to, -1, (void*)callback, arg};
 	int ret = ds_sqlite3_exec(buf, &ee);
@@ -818,4 +822,24 @@ int ds_table_info(const char *tblname, stTableInfo_t *ti) {
 	return -1;
 }
 
+
+int ds_table_total_record_num(const char *tblname) {
+	stTableOperaion_t *to = ds_search_table_operation(tblname);
+	if (to == NULL) {
+		log_warn("Invalid table name : %s\n", tblname);
+		return -1;
+	}
+
+
+	char buf[512];
+	sprintf(buf, "select count(*) from %s", tblname);
+
+	stExecEnv_t ee = { CBMODE_COUNT, to, -1, NULL, 0};
+	int ret = ds_sqlite3_exec(buf, &ee);
+	if (ret != 0) {
+		return 0;
+	}
+
+	return ee.ret;
+}
 

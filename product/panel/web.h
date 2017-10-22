@@ -44,13 +44,14 @@ typedef struct stWebEnv {
 	char						user[64];
 	char						pass[64];
 
-	int							currpage;
+	//int							currpage;
 }stWebEnv_t;
 
 typedef struct stReq {
 	httpd *server;
 	httpReq *request;
 	char		*tblname;
+	void		*arg;
 }stReq_t;
 
 typedef struct stMenuItem {

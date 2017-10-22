@@ -233,6 +233,16 @@ int ds_search_record(const char *tblname,
  */
 int ds_table_info(const char *tblname, stTableInfo_t *ti);
 
+/* ds_table_total_record_num 
+ *
+ * 查询表总的record 数目
+ *
+ * @param[in] tblname 表名
+ *
+ * @return 返回表的总记录数
+ */
+int ds_table_total_record_num(const char *tblname);
+
 #ifdef __cplusplus
 }
 #endif

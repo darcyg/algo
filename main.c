@@ -148,8 +148,8 @@ void db_test() {
 		ds_insert_record("log", &tr);
 	}
 
-	ds_delete_record("log", "module = '%s'", "TEST");
-	ds_delete_record("log", "module = '%s'", "FUNC");
+	ds_delete_record("log", "where module = '%s'", "TEST");
+	ds_delete_record("log", "where module = '%s'", "FUNC");
 
 	stTableRecord_t tr = {
 			.log = {
@@ -159,9 +159,9 @@ void db_test() {
 				.content = "Yes",
 			},
 	};
-	ds_update_record("log", &tr, "module = '%s'", "STORAGE");
+	ds_update_record("log", &tr, "where module = '%s'", "STORAGE");
 
-	ds_search_record("log", db_test_search_callback, NULL, "module = '%s'", "MODIFIED");
+	ds_search_record("log", db_test_search_callback, NULL, "where module = '%s'", "MODIFIED");
 
 	ds_free();
 }

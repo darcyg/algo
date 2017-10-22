@@ -6,10 +6,10 @@
 body {
 	margin: 1% 0% 1% 0%;
 	background-color : #ff6666;
-	width :1280px;
-	height:800px;
+	width :80%;
+	height:875;
 	//text-align:center;
-	position:relative;
+	//position:relative;
 	padding:1% 15% 1% 15%;
 }
 
@@ -18,6 +18,7 @@ body {
 
 div {
 	//outline:#00FF00 dotted thick;
+	//height:auto;
 }
 
 #menu {
@@ -32,6 +33,7 @@ button {
 #menu li {
 	list-style:none;
 	cursor:pointer;
+	height:220;
 }
 
 #menu li div {
@@ -48,6 +50,7 @@ button {
 #content {
 	width: 78%;
 	float: right;
+	height:auto;
 }
 
 
