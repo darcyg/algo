@@ -29,6 +29,19 @@ algosrcs				+= $(ROOTDIR)/lib/src/libhttpd-2.0/version.c
 algosrcs				+= $(ROOTDIR)/lib/lweb.c
 algosrcs				+= $(ROOTDIR)/lib/util.cpp
 
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/dump.c       
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/hashtable_seed.c  
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/pack_unpack.c  
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/utf.c
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/error.c      
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/load.c            
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/strbuffer.c    
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/value.c
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/hashtable.c  
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/memory.c          
+algosrcs				+= $(ROOTDIR)/lib/src/jansson/strconv.c
+algosrcs				+= $(ROOTDIR)/lib/json_parser.c
+
 algosrcs				:= $(subst .cpp,.c,$(algosrcs))
 algoobjs				:= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(algosrcs)))
 

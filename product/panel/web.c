@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 #include "ds.h"
+#include "json_parser.h"
 
 
 static stWebEnv_t we = {
@@ -180,7 +181,10 @@ int web_start(const char *ip, int port, const char *base) {
 }
 
 int web_socket_get() {
-	return 0;
+	if (we.svr != NULL) {
+		return we.svr->serverSock;
+	}
+	return -1;
 }
 
 int web_loop() {
@@ -625,7 +629,7 @@ static int web_get_ops(const char *tblname) {
 	if (i == cnt) {
 		return 0;
 	}
-	printf("ops %d[%s]\n", tableops[i], tblname);
+	//printf("ops %d[%s]\n", tableops[i], tblname);
 	return tableops[i];
 }
 static int db_test_search_status(stTableRecord_t *tr, void *arg) {
@@ -1299,41 +1303,375 @@ static void add_func(httpd *server, httpReq *req) {
 	web_render_table(server, req, tblname, (total-1)*10, 10) ;
 }
 
-/* db api for server */
+/* 
+ * db api for server 
+ */
+/* tblname, {name:value,...} */
 static void api_db_insert_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *tblname = (char *)json_get_string(jarg, "tblname");
+	if (tblname == NULL) {
+		json_decref(jarg);
+		return;
+	}
+
+	int ops = web_get_ops(tblname);
+	if ((ops &0x4) == 0) {
+		return;
+	}
+
+
+
+
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+
+	json_t *jnewval = json_object_get(jarg, "newval");
+
+	stTableRecord_t tr;
+	char *ptr = (char *)&tr;
+	int i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		json_t *jval = json_object_get(jnewval, ii->name);
+		if (jval == NULL) {
+			continue;
+		}
+		char *sval = json_dumps(jval, 0);
+
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				sscanf(sval, "%d", &x);
+		
+				*ptr = x&0xff;
+
+				ptr += ii->len * 1;
+			} else {
+				strcpy(ptr, sval);
+
+				ptr += ii->len * 1;
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				sscanf(sval, "%d", &x);
+
+				*(int*)ptr = x;
+
+				ptr += ii->len * 4;
+			} else {
+				ptr += ii->len * 4;
+			}
+		}
+
+
+		free(sval);
+	}
+
+
+	ds_insert_record(tblname, &tr);
+
 }
+/* tblname, {name:value,...}, {name:value, ...} */
 static void api_db_update_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *tblname = (char *)json_get_string(jarg, "tblname");
+	if (tblname == NULL) {
+		json_decref(jarg);
+		return;
+	}
+	int ops = web_get_ops(tblname);
+	if ((ops &0x2) == 0) {
+		return;
+	}
+
+
+
+	json_t *jmatch = json_object_get(jarg, "match");
+
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+
+	char where[512];
+	int len = 0;
+	len += sprintf(where + len, "where ");
+
+	int i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		json_t *jval = json_object_get(jmatch, ii->name);
+		if (jval == NULL) {
+			continue;
+		}
+		char *sval = json_dumps(jval, 0);
+		char *and  = "";
+		if (i > 0) and = " and ";
+		len += sprintf(where + len, "%s%s = %s", and, ii->name, sval);
+		free(sval);
+	}
+
+	json_t *jnewval = json_object_get(jarg, "newval");
+
+	stTableRecord_t tr; 
+	char *ptr = (char *)&tr;
+	i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		json_t *jval = json_object_get(jnewval, ii->name);
+		if (jval == NULL) {
+			continue;
+		}
+		char *sval = json_dumps(jval, 0);
+
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				sscanf(sval, "%d", &x);
+		
+				*ptr = x&0xff;
+
+				ptr += ii->len * 1;
+			} else {
+				strcpy(ptr, sval);
+
+				ptr += ii->len * 1;
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				sscanf(sval, "%d", &x);
+
+				*(int*)ptr = x;
+
+				ptr += ii->len * 4;
+			} else {
+				ptr += ii->len * 4;
+			}
+		}
+
+
+		free(sval);
+	}
+
+
+	ds_update_record(tblname, &tr, where);
+
 }
+/* tblname, start, count */
+static int api_db_select_callback(stTableRecord_t *tr, void *arg) {
+	stReq_t *r = (stReq_t *)arg;
+	//httpd		*server = r->server;
+	//httpReq *req = r->request;
+	char *tblname = r->tblname;
+	json_t *jrs = (json_t *)r->arg;
+
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+
+	char *ptr = (char *)tr;
+	int i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		json_t *jval = json_object();
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+					json_object_set_new(jval, ii->name, json_integer((*ptr)&0xff));
+					ptr += ii->len * 1;
+			} else {
+					json_object_set_new(jval, ii->name, json_string(ptr));
+					ptr += ii->len * 1;
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+					json_object_set_new(jval, ii->name, json_integer(*(int*)ptr));
+					ptr += ii->len * 4;
+			} else {
+					ptr += ii->len * 4;
+			}
+		}
+		json_array_append(jrs, jval);
+	}
+
+	return 0;
+}
+
 static void api_db_select_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *tblname = (char *)json_get_string(jarg, "tblname");
+	int start = -1; 
+	int count = -1; 
+	if (tblname == NULL || 
+			json_get_int(jarg, "start", &start) != 0 || 
+			json_get_int(jarg, "count", &count) != 0) {
+		json_decref(jarg);
+		return;
+	}
+
+	if (start < 0 || count <= 0 || count > 10) {
+		json_decref(jarg);
+		return;
+	}
+
+	int ops = web_get_ops(tblname);
+	if ((ops &0x4) == 0) {
+		json_decref(jarg);
+		return;
+	}
+
+
+	//int num = ds_table_total_record_num(tblname);
+	//int total = (num + 10-1)/10;
+
+
+	json_t *rs = json_array();
+	stReq_t r = {server, req, tblname, rs};
+	ds_search_record(tblname, api_db_select_callback, &r, "limit %d,%d", start, count);
+	json_decref(jarg);
+
+	json_t *jret = json_object();
+	json_object_set_new(jret, "tblname",json_string(tblname));
+	json_object_set_new(jret, "start",  json_integer(start));
+	json_object_set_new(jret, "count",	json_integer(count));
+	json_object_set_new(jret, "records",rs);
+
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
 }
+
+/* tblname, {name:value,...} */
 static void api_db_delete_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *tblname = (char *)json_get_string(jarg, "tblname");
+	if (tblname == NULL) {
+		json_decref(jarg);
+		return;
+	}
+	int ops = web_get_ops(tblname);
+	if ((ops &0x1) == 0) {
+		return;
+	}
+
+
+	json_t *jmatch = json_object_get(jarg, "match");
+
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+
+	char where[512];
+	int len = 0;
+	len += sprintf(where + len, "where ");
+
+	int i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		json_t *jval = json_object_get(jmatch, ii->name);
+		if (jval == NULL) {
+			continue;
+		}
+		char *sval = json_dumps(jval, 0);
+		char *and  = "";
+		if (i > 0) and = " and ";
+		len += sprintf(where + len, "%s%s = %s", and, ii->name, sval);
+		free(sval);
+	}
+
+	ds_delete_record(tblname, where);
+
 }
+
+/* tblname, url of db */
 static void api_db_import_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *urldb = (char *)json_get_string(jarg, "dburl");
+	if (urldb == NULL) {
+		return;
+	}
+
+	//system(urldb);
+
 }
+/* tblname */
 static void api_db_export_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+
+	/* out urldb*/
 }
+/* oldpass, new pass */
 static void api_db_setpass_func(httpd *server, httpReq *req) {
-		httpdPrintf(server, req, (char *)
-			"<div>developing...</div>\n"
-		);
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *oldpass = (char *)json_get_string(jarg, "oldpass");
+	char *newpass = (char *)json_get_string(jarg, "newpass");
+	
+	if (oldpass == 0 || newpass == 0) {
+		return;
+	}
+
+	/* set pass */
 }
 
 

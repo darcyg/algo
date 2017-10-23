@@ -4,6 +4,8 @@
 
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/select.h>
+#include <sys/types.h>
 #include <time.h>
 
 #include "algo.h"
@@ -11,6 +13,7 @@
 #include "util.h"
 #include "web.h"
 #include "curl.h"
+#include "json_parser.h"
 
 void base64_test();
 void md5_test();
@@ -18,6 +21,7 @@ void triple_des_ecb_test();
 void db_test();
 void web_test(const char *ip, int port);
 void curl_test();
+void jansson_test();
 
 static char apppath[256];
 static char basedir[256];
@@ -54,6 +58,9 @@ int main(int argc, char *argv[]) {
 
 	/* curl test */
 	curl_test();
+
+	/* json_test */
+	jansson_test();
 
 	/* web_test() */
 	web_test(argv[1], atoi(argv[2]));
@@ -240,6 +247,28 @@ void web_test(const char *ip, int port) {
 	}
 	
 	while (1) {	
+
+		int sock = web_socket_get();
+		if (sock < 0) {
+			sleep(1);
+			continue;
+		}
+
+		fd_set fds;
+		FD_ZERO(&fds);
+		FD_SET(sock, &fds);
+
+		struct timeval tv = {4, 0};
+		int ret = select(sock+1, &fds, NULL, NULL, &tv);
+
+		if (ret == 0) {
+			continue;
+		}
+		if (ret < 0) {
+			sleep (1);
+			continue;
+		}
+
 		web_loop();
 	}
 
@@ -340,4 +369,18 @@ void curl_test() {
 	//auto res = curl_post_req(postUrlStr, postParams, postResponseStr);  
 }
 
-
+void jansson_test() {
+	json_t *x = json_object();
+	if (x != NULL) {
+		json_object_set_new(x, "value", json_integer(10));
+		json_object_set_new(x, "name", json_string("name"));
+		char *xstr =  json_dumps(x, 0);
+		if (xstr != NULL) {
+			printf("x is %s\n", xstr);
+			free(xstr);
+		}
+		json_decref(x);
+	} else {
+		printf("new json object failed\n");
+	}
+}

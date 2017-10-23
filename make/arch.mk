@@ -51,6 +51,7 @@ TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/3des-ecb
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/sqlite-amalgamation-3200100
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/libhttpd-2.0
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/curl/$(ARCH_CURL)
+TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/jansson/
 
 TARGET_CFLAGS			+= -I$(ROOTDIR)/product/panel
 TARGET_CFLAGS 		+= $(CROSS_CFLAGS)
@@ -60,6 +61,7 @@ TARGET_CFLAGS			+= -DSQLITE_OMIT_LOAD_EXTENSION
 ifeq ($(ARCH),arm)
 TARGET_CFLAGS			+= -DARCH_ARM
 endif
+TARGET_CFLAGS			+= -DHAVE_CONFIG_H
 
 #TARGET_LDFLAGS 		+= -lm -lrt -ldl -lpthread
 #TARGET_LDFLAGS 		+= -ldl
