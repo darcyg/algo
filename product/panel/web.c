@@ -65,6 +65,15 @@ static void web_render_admin(httpd *server, httpReq *req);
 static void web_render_about(httpd *server, httpReq *req);
 
 
+static void api_db_insert_func(httpd *server, httpReq *req);
+static void api_db_update_func(httpd *server, httpReq *req);
+static void api_db_select_func(httpd *server, httpReq *req);
+static void api_db_delete_func(httpd *server, httpReq *req);
+static void api_db_import_func(httpd *server, httpReq *req);
+static void api_db_export_func(httpd *server, httpReq *req);
+static void api_db_setpass_func(httpd *server, httpReq *req);
+
+
 static void web_render_table(httpd *server, httpReq *req, const char *tblname, int start, int count);
 
 static int db_test_search_status(stTableRecord_t *tr, void *arg);
@@ -100,6 +109,15 @@ static stWebNode_t wns[] = {
 	{PT_CFUNC, "/",				"menu",				0,						NULL, menu_func,				INVALID_ITEM, INVALID_ITEM},
 
 	{PT_FILE,	"/",				"error",			0,						NULL, INVALID_ITEM,		"error.html",	INVALID_ITEM},
+
+
+	{PT_CFUNC, "/api/db",	"insert",			0,						NULL, api_db_insert_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db",	"update",			0,						NULL, api_db_update_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db",	"select",			0,						NULL, api_db_select_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db",	"delete",			0,						NULL, api_db_delete_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db",	"import",			0,						NULL, api_db_import_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db",	"export",			0,						NULL, api_db_export_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/ad",	"setpass",		0,						NULL, api_db_setpass_func,			INVALID_ITEM, INVALID_ITEM},
 };
 
 
@@ -1280,4 +1298,42 @@ static void add_func(httpd *server, httpReq *req) {
 
 	web_render_table(server, req, tblname, (total-1)*10, 10) ;
 }
+
+/* db api for server */
+static void api_db_insert_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+static void api_db_update_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+static void api_db_select_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+static void api_db_delete_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+static void api_db_import_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+static void api_db_export_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+static void api_db_setpass_func(httpd *server, httpReq *req) {
+		httpdPrintf(server, req, (char *)
+			"<div>developing...</div>\n"
+		);
+}
+
 

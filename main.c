@@ -10,12 +10,14 @@
 #include "ds.h"
 #include "util.h"
 #include "web.h"
+#include "curl.h"
 
 void base64_test();
 void md5_test();
 void triple_des_ecb_test();
 void db_test();
 void web_test(const char *ip, int port);
+void curl_test();
 
 static char apppath[256];
 static char basedir[256];
@@ -49,6 +51,9 @@ int main(int argc, char *argv[]) {
 
 	/* db test */
 	db_test();
+
+	/* curl test */
+	curl_test();
 
 	/* web_test() */
 	web_test(argv[1], atoi(argv[2]));
@@ -239,6 +244,100 @@ void web_test(const char *ip, int port) {
 	}
 
 	ds_free();
+}
+
+// reply of the requery  
+static size_t req_reply(void *ptr, size_t size, size_t nmemb, void *stream) {  
+	//cout << "----->reply" << endl;  
+	//string *str = (string*)stream;  
+	//cout << *str << endl;  
+	//(*str).append((char*)ptr, size*nmemb);  
+
+	printf("[%s] : [%s]\n", __func__, (char *)ptr);
+
+	char *ptrString = (char *)ptr;
+	char *outString = (char *)stream;
+	strcat(outString, ptrString);
+
+	return size * nmemb;  
+}  
+
+// http GET  
+static CURLcode curl_get_req(const char *url, char *response) {  
+	// init curl  
+	CURL *curl = curl_easy_init();  
+	// res code  
+	CURLcode res;  
+	if (curl)  {  
+		// set params  
+		curl_easy_setopt(curl, CURLOPT_URL, url); // url  
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // if want to use https  
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // set peer and host verify false  
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);  
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);  
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, req_reply);  
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);  
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);  
+		curl_easy_setopt(curl, CURLOPT_HEADER, 1);  
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3); // set transport and time out time  
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);  
+		// start req  
+		res = curl_easy_perform(curl);  
+	}  
+	// release curl  
+	curl_easy_cleanup(curl);  
+	return res;  
+}  
+
+// http POST  
+CURLcode curl_post_req(const char *url, const char *postParams, char *response)  {  
+	// init curl  
+	CURL *curl = curl_easy_init();  
+	// res code  
+	CURLcode res;  
+	if (curl)   {  
+		// set params  
+		curl_easy_setopt(curl, CURLOPT_POST, 1); // post req  
+		curl_easy_setopt(curl, CURLOPT_URL, url); // url  
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postParams); // params  
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // if want to use https  
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // set peer and host verify false  
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);  
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);  
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, req_reply);  
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);  
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);  
+		curl_easy_setopt(curl, CURLOPT_HEADER, 1);  
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);  
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);  
+		// start req  
+		res = curl_easy_perform(curl);  
+	}  
+	// release curl  
+	curl_easy_cleanup(curl);  
+	return res;  
+}  
+
+void curl_test() {
+	const char *url = "http://baidu.com";
+	char resp[2048] = {0};
+	
+	int ret = curl_get_req(url, resp);
+
+	if (ret != CURLE_OK) {
+		printf("error : %s\n", curl_easy_strerror(ret));
+		return;
+	}
+
+	printf("[resp] : %s\n", resp);
+
+	curl_global_cleanup();
+
+
+	//string postUrlStr = "https://www.baidu.com/s";  
+	//string postParams = "f=8&rsv_bp=1&rsv_idx=1&word=picture&tn=98633779_hao_pg";  
+	//string postResponseStr;  
+	//auto res = curl_post_req(postUrlStr, postParams, postResponseStr);  
 }
 
 

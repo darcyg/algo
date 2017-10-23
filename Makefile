@@ -39,6 +39,9 @@ testsrcs				+= $(ROOTDIR)/product/panel/web.c
 
 testsrcs				:= $(subst .cpp,.c,$(testsrcs))
 testobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(testsrcs)))
+#testobjs				+= $(ROOTDIR)/lib/src/curl/libcurl.a
+#testobjs				+= /opt/jerry/tool/sysroot/usr/lib/libz.a 
+testobjs				+= $(TARGET_ALIBS)
 
 
 -include $(ROOTDIR)/make/arch.mk
