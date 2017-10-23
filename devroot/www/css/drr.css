@@ -8,7 +8,6 @@ li {
 	list-style:none;
 	cursor:pointer;
 }
-}
 
 button {
 	cursor:pointer;
@@ -47,15 +46,18 @@ body {
 
 
 #menu {
-	width:15%;
+	//width: auto;
+	width:18%;
 	float:left;
 }
 #middle {
-	width:5%;	
+	width:2%;	
+	//width: auto;
 	float :left;
 }
 
 #content {
+	//width: auto;
 	width: 80%;
 	float: left;
 	height:auto;
@@ -67,18 +69,24 @@ body {
 }
 
 
+#menu li {
+	//width: 100%;
+}
+
 #menu li div div img {
-	height:75px;
-	width:100px;
+	//height:75px;
+	height:16%;
+	//width:100%;
+	//width:px;
 	border-radius:100%;
 }
 
 #menu li div {
 	background-color : #ffffff;
 	text-align:center;
-	margin: 0px 0px 10px 0px;
+	margin: 0px 0px 7% 0px;
 	//padding : 5px 10px 10px 10px;
-	padding : 0px 0px 2px 0px;
+	//padding : 0px 0px 2px 0px;
 	border-radius:15px;
 }
 
@@ -142,4 +150,19 @@ body {
 #other {
 	text-align:right;
 	text-color: #ffffff;
+}
+
+
+
+.shl div{
+	display : inline-block;
+	margin: 1% 0px 1% 0px;
+	//background : #ffff00;
+	color : #000000;
+	//font-family: verdana,arial,sans-serif;
+	font-size:21px;
+}
+
+.shl :first-child {
+	width: 25%;
 }

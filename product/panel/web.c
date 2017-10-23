@@ -67,6 +67,8 @@ static void web_render_about(httpd *server, httpReq *req);
 
 static void web_render_table(httpd *server, httpReq *req, const char *tblname, int start, int count);
 
+static int db_test_search_status(stTableRecord_t *tr, void *arg);
+
 static stContentHandler_t chs[] = {
 	{PAGE_STATUS, web_render_status},
 	//{PAGE_IMPORT, web_render_import},
@@ -330,7 +332,19 @@ static void web_render_content(httpd *server, httpReq *req) {
 
 static void web_render_status(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
+		"				<div class=\"disarea\">\n"
+	);
+
+	httpdPrintf(server, req, (char *)
 		"				<div >开发中...</div>\n"
+	);
+
+	char *tblname = "basicinfo";
+	stReq_t r = {server, req, tblname, NULL};
+	ds_search_record(tblname, db_test_search_status, &r, "limit 0, 1");
+
+	httpdPrintf(server, req, (char *)
+		"				</div>\n"
 	);
 
 
@@ -380,7 +394,7 @@ static void web_render_import_export(httpd *server, httpReq *req) {
 	);
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"title\">\n"
-		"						<p>ImportDataBase</p>\n"
+		"						<p>导入数据库</p>\n"
 		"					</div>\n"
 	);
 
@@ -388,21 +402,21 @@ static void web_render_import_export(httpd *server, httpReq *req) {
 		"					<div class=\"inputfile\">\n"
 		"						<form method=\"post\" action=\"importdb\">\n"
 		"							<input type=\"text\" size=\"20\"></input>\n"
-		"							<input type=\"button\" value=\"Import\"></input>\n"
+		"							<button>导入</input>\n"
 		"						</form>\n"
 		"					</div>\n"
 	);
 
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"title\">\n"
-		"						<p>ExportDataBase</p>\n"
+		"						<p>导出数据库</p>\n"
 		"					</div>\n"
 	);
 
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"inputfile\">\n"
 		"						<form method=\"post\" action=\"importdb\">\n"
-		"							<button type=\"button\">DownLoad</button>\n"
+		"							<button>导出</button>\n"
 		"						</form>\n"
 		"					</div>\n"
 	);
@@ -413,11 +427,13 @@ static void web_render_import_export(httpd *server, httpReq *req) {
 		"					</div>\n"
 	);
 
+	/*
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"Submit\">\n"
 		"						<input type=\"button\" value=\"Submit\"></input>\n"
 		"					</div>\n"
 	);
+	*/
 
 
 
@@ -515,7 +531,7 @@ static void web_render_admin(httpd *server, httpReq *req) {
 	);
 	httpdPrintf(server, req, (char *)
 		"					<div class=\"title\">\n"
-		"						<p>Modify Admin</p>\n"
+		"						<p>修改密码</p>\n"
 		"					</div>\n"
 	);
 
@@ -534,8 +550,8 @@ static void web_render_admin(httpd *server, httpReq *req) {
 	);
 
 	httpdPrintf(server, req, (char *)
-		"					<div class=\"Submit\">\n"
-		"						<input type=\"button\" value=\"Submit\"></input>\n"
+		"					<div class=\"submit\">\n"
+		"						<button>修改</button>\n"
 		"					</div>\n"
 	);
 
@@ -593,6 +609,58 @@ static int web_get_ops(const char *tblname) {
 	}
 	printf("ops %d[%s]\n", tableops[i], tblname);
 	return tableops[i];
+}
+static int db_test_search_status(stTableRecord_t *tr, void *arg) {
+	stReq_t *r = (stReq_t *)arg;
+	httpd		*server = r->server;
+	httpReq *req = r->request;
+	char *tblname = r->tblname;
+
+	stTableInfo_t ti;
+	int ret = ds_table_info(tblname, &ti);
+	ret = ret;
+
+
+	//int ops = web_get_ops(tblname);
+	httpdPrintf(server, req, (char *)
+			"								<div id=\"status\">\n"
+	);
+
+
+	char *ptr = (char *)tr;
+	int i = 0;
+	for (i = 0; i < ti.itemcnt; i++) {
+		stItemInfo_t *ii = &ti.items[i];
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+				httpdPrintf(server, req, (char *)
+					"								<div class=\"shl\"><div>%s</div><div></div><div>%d</div></div>\n", ii->name, *ptr);
+					ptr += ii->len * 1;
+			} else {
+				httpdPrintf(server, req, (char *)
+					"								<div class=\"shl\"><div>%s</div><div></div><div>%s</div></div>\n", ii->name, ptr);
+					ptr += ii->len * 1;
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+				httpdPrintf(server, req, (char *)
+					"								<div class=\"shl\"><div>%s</div><div></div><div>%d</div></div>\n", ii->name, *(int*)ptr);
+					ptr += ii->len * 4;
+			} else {
+				httpdPrintf(server, req, (char *)
+					"								<div class=\"shl\"><div>%s</div><div></div><div>%s</div></div>\n", ii->name, "-");
+					ptr += ii->len * 4;
+			}
+		}
+	}
+
+	httpdPrintf(server, req, (char *)
+			"								</div>\n"
+	);
+
+
+
+	return 0;
 }
 static int db_test_search_callback_1(stTableRecord_t *tr, void *arg) {
 	stReq_t *r = (stReq_t *)arg;

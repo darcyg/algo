@@ -275,6 +275,10 @@ $(function(){
 		});
 	});
 
+	$(window).resize(function() {
+		$("#content .disarea").css("height",$("#menu").css("height"));
+		modinit();
+	});
 
 
 	$("#content .disarea").css("height",$("#menu").css("height"));
