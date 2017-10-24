@@ -70,8 +70,27 @@ int _httpd_net_write(sock, buf, len)
 		sent = 0,
 		offset = 0;
 
+	int count = 4;
 	while(remain)
 	{
+		fd_set fds;
+		struct timeval tv = {1, 0};
+		FD_ZERO(&fds);
+		FD_SET(sock, &fds);
+		int ret = select(sock+1, NULL, &fds, NULL, &tv);
+		if (ret == 0) {
+			if (--count <= 0) {
+				return 0;
+			}
+			printf("[%s] [%d] sock:[%d]\n", __func__, __LINE__, sock);
+			continue;
+		}
+		if (ret < 0) {
+			printf("[%s] [%d] Send Error:[%d]\n", __func__, __LINE__, sock);
+			return 0;
+		} 
+
+
 #if defined(_WIN32) 
 		sent = send(sock, buf + offset, remain, 0);
 #else

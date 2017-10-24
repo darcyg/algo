@@ -109,16 +109,17 @@ static stWebNode_t wns[] = {
 	{PT_CFUNC, "/",				"mod",				0,						NULL, mod_func,				INVALID_ITEM, INVALID_ITEM},
 	{PT_CFUNC, "/",				"menu",				0,						NULL, menu_func,				INVALID_ITEM, INVALID_ITEM},
 
-	{PT_FILE,	"/",				"error",			0,						NULL, INVALID_ITEM,		"error.html",	INVALID_ITEM},
+	{PT_FILE,	"/",				"error",				0,					NULL, INVALID_ITEM,		"page/error.html",	INVALID_ITEM},
+	{PT_FILE, "/",				"favicon.ico",	0,					NULL, INVALID_ITEM,		"image/favicon.ico",				INVALID_ITEM},
 
 
-	{PT_CFUNC, "/api/db",	"insert",			0,						NULL, api_db_insert_func,				INVALID_ITEM, INVALID_ITEM},
-	{PT_CFUNC, "/api/db",	"update",			0,						NULL, api_db_update_func,				INVALID_ITEM, INVALID_ITEM},
-	{PT_CFUNC, "/api/db",	"select",			0,						NULL, api_db_select_func,				INVALID_ITEM, INVALID_ITEM},
-	{PT_CFUNC, "/api/db",	"delete",			0,						NULL, api_db_delete_func,				INVALID_ITEM, INVALID_ITEM},
-	{PT_CFUNC, "/api/db",	"import",			0,						NULL, api_db_import_func,				INVALID_ITEM, INVALID_ITEM},
-	{PT_CFUNC, "/api/db",	"export",			0,						NULL, api_db_export_func,				INVALID_ITEM, INVALID_ITEM},
-	{PT_CFUNC, "/api/ad",	"setpass",		0,						NULL, api_db_setpass_func,			INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db/",	"insert",			0,						NULL, api_db_insert_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db/",	"update",			0,						NULL, api_db_update_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db/",	"select",			0,						NULL, api_db_select_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db/",	"delete",			0,						NULL, api_db_delete_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db/",	"import",			0,						NULL, api_db_import_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/db/",	"export",			0,						NULL, api_db_export_func,				INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/ad/",	"setpass",		0,						NULL, api_db_setpass_func,			INVALID_ITEM, INVALID_ITEM},
 };
 
 
@@ -190,7 +191,7 @@ int web_socket_get() {
 int web_loop() {
 	while (1) {
 		struct timeval timeout;
-		timeout.tv_sec = 5;
+		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 		int result;
 		httpReq *req =  httpdReadRequest(we.svr, &timeout, &result);
@@ -1308,23 +1309,27 @@ static void add_func(httpd *server, httpReq *req) {
  */
 /* tblname, {name:value,...} */
 static void api_db_insert_func(httpd *server, httpReq *req) {
+	printf("[%s] [%d]\n", __func__, __LINE__);
 	httpVar *val = httpdGetVariableByName(server, req, "argements");
 	if (val == NULL || val->value == NULL) {
 		return;
 	}
 
+	printf("[%s] [%d]\n", __func__, __LINE__);
 	json_error_t err;
 	json_t *jarg = json_loads(val->value, 0, &err);
 	if (jarg == NULL) {
 		return;
 	}
 
+	printf("[%s] [%d]\n", __func__, __LINE__);
 	char *tblname = (char *)json_get_string(jarg, "tblname");
 	if (tblname == NULL) {
 		json_decref(jarg);
 		return;
 	}
 
+	printf("[%s] [%d] : tblname : %s\n", __func__, __LINE__, tblname);
 	int ops = web_get_ops(tblname);
 	if ((ops &0x4) == 0) {
 		return;
@@ -1333,6 +1338,7 @@ static void api_db_insert_func(httpd *server, httpReq *req) {
 
 
 
+	printf("[%s] [%d]\n", __func__, __LINE__);
 	stTableInfo_t ti;
 	int ret = ds_table_info(tblname, &ti);
 	ret = ret;
@@ -1348,17 +1354,20 @@ static void api_db_insert_func(httpd *server, httpReq *req) {
 		if (jval == NULL) {
 			continue;
 		}
-		char *sval = json_dumps(jval, 0);
+		//char *sval = json_dumps(jval, 0);
+
 
 		if (strcmp(ii->type, "char") == 0) {
 			if (ii->len == 1) {
 				int x = 0;
-				sscanf(sval, "%d", &x);
+				json_get_int(jnewval,ii->name, &x);
 		
 				*ptr = x&0xff;
 
 				ptr += ii->len * 1;
 			} else {
+				char *sval = (char *)json_get_string(jnewval, ii->name);
+				sval = sval ? sval : "";
 				strcpy(ptr, sval);
 
 				ptr += ii->len * 1;
@@ -1366,7 +1375,7 @@ static void api_db_insert_func(httpd *server, httpReq *req) {
 		} else if (strcmp(ii->type, "int") == 0) {
 			if (ii->len == 1) {
 				int x = 0;
-				sscanf(sval, "%d", &x);
+				json_get_int(jnewval,ii->name, &x);
 
 				*(int*)ptr = x;
 
@@ -1376,13 +1385,21 @@ static void api_db_insert_func(httpd *server, httpReq *req) {
 			}
 		}
 
-
-		free(sval);
+		printf("[%s] [%d]\n", __func__, __LINE__);
 	}
 
 
 	ds_insert_record(tblname, &tr);
 
+	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
+	json_object_set_new(jret, "tblname",json_string(tblname));
+	json_object_set_new(jret, "newval",	jnewval);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
 }
 /* tblname, {name:value,...}, {name:value, ...} */
 static void api_db_update_func(httpd *server, httpReq *req) {
@@ -1426,16 +1443,40 @@ static void api_db_update_func(httpd *server, httpReq *req) {
 		if (jval == NULL) {
 			continue;
 		}
-		char *sval = json_dumps(jval, 0);
+
 		char *and  = "";
 		if (i > 0) and = " and ";
-		len += sprintf(where + len, "%s%s = %s", and, ii->name, sval);
-		free(sval);
+
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				json_get_int(jmatch,ii->name, &x);
+		
+				len += sprintf(where + len, "%s%s = %d", and, ii->name, x);
+
+			} else {
+				char *sval = (char *)json_get_string(jmatch, ii->name);
+				sval = sval ? sval : "";
+
+				len += sprintf(where + len, "%s%s = '%s'", and, ii->name, sval);
+
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				json_get_int(jmatch,ii->name, &x);
+
+				len += sprintf(where + len, "%s%s = %d", and, ii->name, x);
+
+			} else {
+			}
+		}
+
 	}
 
 	json_t *jnewval = json_object_get(jarg, "newval");
 
-	stTableRecord_t tr; 
+	stTableRecord_t tr;
 	char *ptr = (char *)&tr;
 	i = 0;
 	for (i = 0; i < ti.itemcnt; i++) {
@@ -1444,17 +1485,18 @@ static void api_db_update_func(httpd *server, httpReq *req) {
 		if (jval == NULL) {
 			continue;
 		}
-		char *sval = json_dumps(jval, 0);
 
 		if (strcmp(ii->type, "char") == 0) {
 			if (ii->len == 1) {
 				int x = 0;
-				sscanf(sval, "%d", &x);
+				json_get_int(jnewval,ii->name, &x);
 		
 				*ptr = x&0xff;
 
 				ptr += ii->len * 1;
 			} else {
+				char *sval = (char *)json_get_string(jnewval, ii->name);
+				sval = sval ? sval : "";
 				strcpy(ptr, sval);
 
 				ptr += ii->len * 1;
@@ -1462,7 +1504,7 @@ static void api_db_update_func(httpd *server, httpReq *req) {
 		} else if (strcmp(ii->type, "int") == 0) {
 			if (ii->len == 1) {
 				int x = 0;
-				sscanf(sval, "%d", &x);
+				json_get_int(jnewval,ii->name, &x);
 
 				*(int*)ptr = x;
 
@@ -1471,13 +1513,20 @@ static void api_db_update_func(httpd *server, httpReq *req) {
 				ptr += ii->len * 4;
 			}
 		}
-
-
-		free(sval);
 	}
 
-
 	ds_update_record(tblname, &tr, where);
+
+	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
+	json_object_set_new(jret, "tblname",json_string(tblname));
+	json_object_set_new(jret, "match",	jmatch);
+	json_object_set_new(jret, "newval",	jnewval);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
 
 }
 /* tblname, start, count */
@@ -1546,11 +1595,13 @@ static void api_db_select_func(httpd *server, httpReq *req) {
 		return;
 	}
 
+	/*
 	int ops = web_get_ops(tblname);
 	if ((ops &0x4) == 0) {
 		json_decref(jarg);
 		return;
 	}
+	*/
 
 
 	//int num = ds_table_total_record_num(tblname);
@@ -1563,11 +1614,11 @@ static void api_db_select_func(httpd *server, httpReq *req) {
 	json_decref(jarg);
 
 	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
 	json_object_set_new(jret, "tblname",json_string(tblname));
 	json_object_set_new(jret, "start",  json_integer(start));
 	json_object_set_new(jret, "count",	json_integer(count));
 	json_object_set_new(jret, "records",rs);
-
 	char *retstr = json_dumps(jret, 0);
 	httpdPrintf(server, req, retstr);
 	free(retstr);
@@ -1614,15 +1665,48 @@ static void api_db_delete_func(httpd *server, httpReq *req) {
 		if (jval == NULL) {
 			continue;
 		}
-		char *sval = json_dumps(jval, 0);
+
 		char *and  = "";
 		if (i > 0) and = " and ";
-		len += sprintf(where + len, "%s%s = %s", and, ii->name, sval);
-		free(sval);
+
+		if (strcmp(ii->type, "char") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				json_get_int(jmatch,ii->name, &x);
+		
+				len += sprintf(where + len, "%s%s = %d", and, ii->name, x);
+
+			} else {
+				char *sval = (char *)json_get_string(jmatch, ii->name);
+				sval = sval ? sval : "";
+
+				len += sprintf(where + len, "%s%s = '%s'", and, ii->name, sval);
+
+			}
+		} else if (strcmp(ii->type, "int") == 0) {
+			if (ii->len == 1) {
+				int x = 0;
+				json_get_int(jmatch,ii->name, &x);
+
+				len += sprintf(where + len, "%s%s = %d", and, ii->name, x);
+
+			} else {
+			}
+		}
+
 	}
 
 	ds_delete_record(tblname, where);
 
+	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
+	json_object_set_new(jret, "tblname",json_string(tblname));
+	json_object_set_new(jret, "match",	jmatch);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
 }
 
 /* tblname, url of db */
@@ -1645,11 +1729,47 @@ static void api_db_import_func(httpd *server, httpReq *req) {
 
 	//system(urldb);
 
+	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
+	json_object_set_new(jret, "dburl",json_string(urldb));
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
 }
 /* tblname */
 static void api_db_export_func(httpd *server, httpReq *req) {
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
 
-	/* out urldb*/
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	/*
+	char *urldb = (char *)json_get_string(jarg, "dburl");
+	if (urldb == NULL) {
+		return;
+	}
+	*/
+
+	//system(urldb);
+	char *urldb = "http://www.baidu.com/x/test.db";
+
+	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
+	json_object_set_new(jret, "dburl",json_string(urldb));
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
+
 }
 /* oldpass, new pass */
 static void api_db_setpass_func(httpd *server, httpReq *req) {
@@ -1672,6 +1792,16 @@ static void api_db_setpass_func(httpd *server, httpReq *req) {
 	}
 
 	/* set pass */
+
+	json_t *jret = json_object();
+	json_object_set_new(jret, "retcode",json_integer(0));
+	json_object_set_new(jret, "oldpass",json_string(oldpass));
+	json_object_set_new(jret, "newpass",json_string(newpass));
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
 }
 
 

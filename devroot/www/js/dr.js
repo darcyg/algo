@@ -284,4 +284,165 @@ $(function(){
 	$("#content .disarea").css("height",$("#menu").css("height"));
 	modinit();
 
+	$(document.body).append($('<button id="testselect">select</button>'));
+	$(document.body).append($('<button id="testinsert">insert</button>'));
+	$(document.body).append($('<button id="testupdate">update</button>'));
+	$(document.body).append($('<button id="testdelete">delete</button>'));
+	$(document.body).append($('<button id="testimport">import</button>'));
+	$(document.body).append($('<button id="testexport">export</button>'));
+	$(document.body).append($('<button id="testsetpass">setpass</button>'));
+
+	$("#testselect").click(function() {
+		var tblname = "vcard_person";
+		var start   = 0;
+		var count   = 5;
+
+		var argobj = {"tblname":tblname, "start":start,"count":count};
+		var argstr = JSON.stringify(argobj);
+
+		var arg    = {"argements" : argstr}
+
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+
+		DoRequest("/api/db/select", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/db/select... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/db/select... Complete!");
+		});
+	});
+	$("#testinsert").click(function() {
+		var tblname = "vcard_person";
+
+		var vuuid   = Math.random();
+		var puuid   = Math.random();
+		var newval  = {"vcard_uuid":vuuid.toString(), "person_uuid":puuid.toString()};
+
+		var argobj = {"tblname":tblname, "newval":newval};
+		var argstr = JSON.stringify(argobj);
+
+		//alert(argstr);
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+
+		var arg    = {"argements" : argstr}
+
+		DoRequest("/api/db/insert", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/db/insert... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/db/insert... Complete!");
+		});
+	});
+	$("#testupdate").click(function() {
+		var tblname = "vcard_person";
+
+		var vuuid   = "0.21145866070747066";
+		var puuid   = "0.30074283658240275";
+		var oldval  = {"vcard_uuid":vuuid.toString(), "person_uuid":puuid.toString()};
+
+		var vuuid   = Math.random();
+		var puuid   = Math.random();
+		var newval  = {"vcard_uuid":vuuid.toString(), "person_uuid":puuid.toString()};
+
+		var argobj = {"tblname":tblname, "newval":newval, "match":oldval};
+		var argstr = JSON.stringify(argobj);
+
+		var arg    = {"argements" : argstr}
+
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+
+		DoRequest("/api/db/update", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/db/update... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/db/update... Complete!");
+		});
+	});
+	$("#testdelete").click(function() {
+		var tblname = "vcard_person";
+
+		var vuuid   = "0.1335953555108842";
+		var oldval  = {"vcard_uuid":vuuid.toString()};
+
+		var argobj = {"tblname":tblname, "match":oldval};
+		var argstr = JSON.stringify(argobj);
+
+		var arg    = {"argements" : argstr}
+
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+		DoRequest("/api/db/delete", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/db/delete... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/db/delete... Complete!");
+		});
+	});
+	$("#testimport").click(function() {
+
+		var dburl  = "http://dusun.com/xxx.db";
+		var argobj = {"dburl":dburl};
+		var argstr = JSON.stringify(argobj);
+
+		var arg    = {"argements" : argstr}
+
+
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+		DoRequest("/api/db/import", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/db/import... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/db/import... Complete!");
+		});
+	});
+	$("#testexport").click(function() {
+		var argobj = {};
+		var argstr = JSON.stringify(argobj);
+
+		var arg    = {"argements" : argstr}
+
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+		DoRequest("/api/db/export", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/db/export... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/db/export... Complete!");
+		});
+	});
+	$("#testsetpass").click(function() {
+		var oldpass = "1212";
+		var newpass = "3434";
+		var argobj = {"oldpass":oldpass, "newpass":newpass};
+		var argstr = JSON.stringify(argobj);
+
+		var arg    = {"argements" : argstr}
+
+		console.log("------------------------------------------------");
+		console.log(argstr);
+
+		DoRequest("/api/ad/setpass", arg, function(data) { //success
+			console.log(data);
+		}, function(stat) { //error
+			console.log("Requst /api/ad/setpass... Error:" + stat);
+		}, function(stat) {
+			console.log("Requst /api/ad/setpass... Complete!");
+		});
+	});
 }); 
