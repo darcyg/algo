@@ -2,7 +2,7 @@
 #define __WEB_H_
 
 #include "lweb.h"
-#include "version.h"
+#include "common.h"
 
 #ifdef __cplusplus 
 extern "C" {
@@ -46,6 +46,8 @@ typedef struct stWebEnv {
 	char						pass[64];
 
 	//int							currpage;
+	void						*th;
+	void						*fet;
 }stWebEnv_t;
 
 typedef struct stReq {
@@ -79,11 +81,16 @@ typedef struct stContentHandler {
 }stContentHandler_t;
 
 
-
-
 int web_start(const char *ip, int port, const char *base);
 int web_socket_get();
 int web_loop();
+
+void web_init(void *_th, void *_fet, const char *ip, int port, const char *base);
+void web_step();
+void web_push(void *task);
+void web_run(void *timer);
+void web_in(void *arg, int fd);
+int  web_getfd();
 
 
 #ifdef __cplusplus

@@ -4,7 +4,7 @@ WORKDIR=$(ROOTDIR)/build
 ALGO_VERSION	:= 1.0.0
 
 #targets		+= libalgo_$(ALGO_VERSION).so
-targets		+= test
+targets		+= smd
 
 
 .PHONY: targets
@@ -45,16 +45,26 @@ algosrcs				+= $(ROOTDIR)/lib/json_parser.c
 algosrcs				:= $(subst .cpp,.c,$(algosrcs))
 algoobjs				:= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(algosrcs)))
 
-## test :
-testsrcs				+= $(ROOTDIR)/main.c
-testsrcs				+= $(algosrcs)
-testsrcs				+= $(ROOTDIR)/product/panel/web.c
+## smd :
+smdsrcs				+= $(ROOTDIR)/main.c
+smdsrcs				+= $(algosrcs)
+smdsrcs				+= $(ROOTDIR)/product/panel/web.c
+smdsrcs				+= $(ROOTDIR)/product/panel/task.c
+smdsrcs				+= $(ROOTDIR)/product/panel/trig.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/log.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/lookup_by_name.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/timer.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/time_utils.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/assert.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/file_event.c
+smdsrcs				+= $(ROOTDIR)/src/ayla/file_io.c
 
-testsrcs				:= $(subst .cpp,.c,$(testsrcs))
-testobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(testsrcs)))
-#testobjs				+= $(ROOTDIR)/lib/src/curl/libcurl.a
-#testobjs				+= /opt/jerry/tool/sysroot/usr/lib/libz.a 
-testobjs				+= $(TARGET_ALIBS)
+
+smdsrcs				:= $(subst .cpp,.c,$(smdsrcs))
+smdobjs				+= $(subst $(ROOTDIR),$(WORKDIR), $(subst .c,.o,$(smdsrcs)))
+#smdobjs				+= $(ROOTDIR)/lib/src/curl/libcurl.a
+#smdobjs				+= /opt/jerry/tool/sysroot/usr/lib/libz.a 
+smdobjs				+= $(TARGET_ALIBS)
 
 
 -include $(ROOTDIR)/make/arch.mk
@@ -62,8 +72,8 @@ testobjs				+= $(TARGET_ALIBS)
 
 $(eval $(call LinkLio,libalgo_$(ALGO_VERSION).so,$(algoobjs)))
 
-$(eval $(call LinkApp,test,$(testobjs)))
+$(eval $(call LinkApp,smd,$(smdobjs)))
 
 run :  
-	@export LD_LIBRARY_PATH=$(ROOTDIR)/build/;cp $(ROOTDIR)/build/test $(ROOTDIR)/devroot/ -rf; $(ROOTDIR)/build/test 192.168.0.6 10888
+	@export LD_LIBRARY_PATH=$(ROOTDIR)/build/;cp $(ROOTDIR)/build/smd $(ROOTDIR)/devroot/ -rf; sudo $(ROOTDIR)/build/smd -i 192.168.0.6 -p 10888
 

@@ -52,6 +52,7 @@ TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/sqlite-amalgamation-3200100
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/libhttpd-2.0
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/curl/$(ARCH_CURL)
 TARGET_CFLAGS			+= -I$(ROOTDIR)/lib/src/jansson/
+TARGET_CFLAGS			+= -I$(ROOTDIR)/inc
 
 TARGET_CFLAGS			+= -I$(ROOTDIR)/product/panel
 TARGET_CFLAGS 		+= $(CROSS_CFLAGS)

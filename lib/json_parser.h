@@ -6,9 +6,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "common.h"
 #include "jansson.h"
 
-#define ASSERT(x)	do { if (!(x)) { printf("Assert Error [%s->%d]!\n", __func__, __LINE__);exit(0); } } while (0);
+//#define ASSERT(x)	do { if (!(x)) { printf("Assert Error [%s->%d]!\n", __func__, __LINE__);exit(0); } } while (0);
 
 //#define FREE			free
 //#define MALLOC		malloc

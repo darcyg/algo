@@ -10,12 +10,15 @@ extern "C" {
 #pragma pack(push)
 #pragma pack(1)
 typedef struct stBasicInfo {
-	char	uuid[32];
-	char	reluuid[32];
-	int		state;
-	char	fwxxdz[256];
-	char	area_code[60];
-	int		areatype;
+	char	uuid[36];
+	//char	reluuid[32];
+	//int		state;
+	//char	fwxxdz[256];
+	//char	area_code[60];
+	//int		areatype;
+	char	key[32];
+	char	dev_number[36];
+
 	char	ip[16];
 	char	mac[32];
 	char	model[64];
@@ -28,31 +31,33 @@ typedef struct stBasicInfo {
 }stBasicInfo_t;
 
 typedef struct stPerson {
-	char	uuid[32];
-	int		state;
-	char		name[50];
+	char	uuid[36];
+	//int		state;
+	char	name[52];
 	char	sex;
-	char	idcard[18];
-	char	photopath[256];
-	char	flow;
-	char	family;
-	char	owner;
-	char	patrol;
-	char	finger1[32];
-	char	finger2[32];
-	int		finger1type;
-	int		finger2type;
+	//char	idcard[18];
+	//char	photopath[256];
+	//char	flow;
+	//char	family;
+	//char	owner;
+	//char	patrol;
+	//char	finger1[32];
+	//char	finger2[32];
+	//int		finger1type;
+	//int		finger2type;
 }stPerson_t;
 
 typedef struct stVcard {
-	char	uuid[32];
+	char	uuid[36];
 	int		vtype;
-	char	vcardid[32];
+	char	vcardid[52];
 	int		state;
-	int		stime;
-	int		etime;
+	char	stime[32];
+	char	etime[32];
 } stVcard_t;
 
+
+/*
 typedef struct stDevice {
 	char	uuid[32];
 	char	name[64];
@@ -61,7 +66,9 @@ typedef struct stDevice {
 	char	gw_uuid[32];
 	int		capability;
 }stDevice_t;
+*/
 
+/*
 typedef struct stVcardDevice {
 	char	vcard_uuid[32];
 	char	dev_uuid[32];
@@ -70,42 +77,56 @@ typedef struct stVcardDevice {
 	int		etime;
 	int		capability;
 }stVcardDevice_t;
+*/
 
 typedef struct stVcardPerson {
-	char	vcard_uuid[32];
-	char	person_uuid[32];
+	char	vcard_uuid[36];
+	char	person_uuid[36];
 }stVcardPerson_t;
 
 typedef struct stDeviceStatus {
-	char	dev_uuid[32];
-	int		status;
+	char	dev_uuid[36];
+	char	mac[32];
+	//int		status;
 	char	hwversion[32];
 	char	sfversion[32];
+	char	imsi[32];
+	char	msisdn[32];
 	int		battery;
 	int		temperature;
+	int		signal;
+	int		card_capacity;
+	int		whitelist_count;
+	int		finger_capacity;
+	int		finger_count;
 	int		onoff;
 	int		workmode;
 	int		powermode;
 }stDeviceStatus_t;
 
 typedef struct stLockRecord {
-	char	vcard_uuid[32];
-	char	person_uuid[32];
-	int		timestamp;
+	//char	vcard_uuid[32];
+	//char	person_uuid[32];
+	//int		timestamp;
+	char	vcardid[36];
 	char	mac[32];
 	int		opentype;
-	char	area_uuid[32];
-	char	vcardid[32];
-	char	area_code[60];
+	char	slide_date[32];
+	//char	area_uuid[32];
+	//char	area_code[60];
+	char dev_uuid[36];
+	char dev_number[36];
 }stLockRecord_t;
 
 typedef struct stDeviceAlarm {
-	char dev_uuid[32];
-	int	 timestamp;
-	char mac[32];
+	char occur_date[32];
 	int	 type;
-	char area_uuid[32];
-	char vcardid[32];
+	char mac[32];
+	char dev_uuid[36];
+	char vcardid[36];
+	//int	 timestamp;
+	//char dev_number[36];
+	//char area_uuid[32];
 }stDeviceAlarm_t;
 
 typedef struct stLog_t {
@@ -118,11 +139,11 @@ typedef struct stLog_t {
 
 typedef union stTableRecord {
 	stBasicInfo_t			basic;
-	stPerson_t				persion;
+	stPerson_t				person;
 	stVcard_t					vcard;
-	stDevice_t				device;
+	//stDevice_t				device;
 	stVcardPerson_t		vcard_person;
-	stVcardDevice_t		vcard_device;
+	//stVcardDevice_t		vcard_device;
 	stDeviceStatus_t	device_status;
 	stDeviceAlarm_t		device_alarm;
 	stLockRecord_t		lock_record;

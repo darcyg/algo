@@ -63,13 +63,16 @@ enum {
 
 #define RECORD_BASEINFO(x)  \
 		((stBasicInfo_t*)x)->uuid,\
-		((stBasicInfo_t*)x)->reluuid,\
-		((stBasicInfo_t*)x)->state,\
-		((stBasicInfo_t*)x)->fwxxdz,\
-		((stBasicInfo_t*)x)->area_code,\
-		((stBasicInfo_t*)x)->areatype,\
+		/*((stBasicInfo_t*)x)->reluuid,*/\
+		((stBasicInfo_t*)x)->key,\
+		((stBasicInfo_t*)x)->dev_number,\
+		/*((stBasicInfo_t*)x)->state,*/\
+		/*((stBasicInfo_t*)x)->fwxxdz,*/\
+		/*((stBasicInfo_t*)x)->area_code,*/\
+		/*((stBasicInfo_t*)x)->areatype,*/\
 		((stBasicInfo_t*)x)->ip,\
 		((stBasicInfo_t*)x)->mac,\
+		((stBasicInfo_t*)x)->model,\
 		((stBasicInfo_t*)x)->sysversion,\
 		((stBasicInfo_t*)x)->appversion,\
 		((stBasicInfo_t*)x)->adminname,\
@@ -77,14 +80,18 @@ enum {
 		((stBasicInfo_t*)x)->capability,\
 		((stBasicInfo_t*)x)->lurumode
 static stTableItem_t basicinfo_items[] = {
-	{"uuid",			"char", 32, 1},
-	{"reluuid",		"char", 32, 0},
-	{"state",			"int",	1,	0},
-	{"fwxxdz",		"char", 256,0},
-	{"area_code",	"char", 60,	0},
-	{"areatype",	"int",	1,	0},
+	{"uuid",			"char", 36, 1},
+	//{"reluuid",		"char", 36, 0},
+	//{"state",			"int",	1,	0},
+	//{"fwxxdz",		"char", 256,0},
+	//{"area_code",	"char", 60,	0},
+	//{"areatype",	"int",	1,	0},
+	{"key",				"char",	32,	0},
+	{"dev_number","char", 36, 0},
+
 	{"ip",				"char", 16,	0},
 	{"mac",				"char", 32,	0},
+	{"model",			"char", 64, 0},
 	{"sysversion","char", 64,	0},
 	{"appversion","char", 64,	0},
 	{"adminname", "char", 32,	0},
@@ -95,33 +102,32 @@ static stTableItem_t basicinfo_items[] = {
 
 #define RECORD_PERSON(x) \
 		((stPerson_t*)x)->uuid,\
-		((stPerson_t*)x)->state,\
+		/*((stPerson_t*)x)->state,*/\
 		((stPerson_t*)x)->name,\
-		((stPerson_t*)x)->sex,\
-		((stPerson_t*)x)->idcard,\
-		((stPerson_t*)x)->flow,\
-		((stPerson_t*)x)->family,\
-		((stPerson_t*)x)->owner,\
-		((stPerson_t*)x)->patrol,\
-		((stPerson_t*)x)->finger1,\
-		((stPerson_t*)x)->finger2,\
-		((stPerson_t*)x)->finger1type,\
-		((stPerson_t*)x)->finger2type
-
+		((stPerson_t*)x)->sex
+		/*((stPerson_t*)x)->idcard,*/\
+		/*((stPerson_t*)x)->flow,*/\
+		/*((stPerson_t*)x)->family,*/\
+		/*((stPerson_t*)x)->owner,*/\
+		/*((stPerson_t*)x)->patrol,*/\
+		/*((stPerson_t*)x)->finger1,*/\
+		/*((stPerson_t*)x)->finger2,*/\
+		/*((stPerson_t*)x)->finger1type,*/\
+		/*((stPerson_t*)x)->finger2type*/
 static stTableItem_t person_items[] = {
-	{"uuid",			"char",	32,	1},
-	{"state",			"int",	1,	0},
-	{"name",			"char", 50,	0},
+	{"uuid",			"char",	36,	1},
+	//{"state",			"int",	1,	0},
+	{"name",			"char", 52,	0},
 	{"sex",				"char",	1,	0},
-	{"idcard",		"char",	18,	0},
-	{"flow",			"char",	1,	0},
-	{"family",		"char",	1,	0},
-	{"owner",			"char", 1,	0},
-	{"patrol",		"char", 1,	0},
-	{"finger1",		"char",32,	0},
-	{"finger2",			"char",32,0},
-	{"finger1type",	"int",1,	0},
-	{"finger2type",	"int",1,	0},
+	//{"idcard",		"char",	18,	0},
+	//{"flow",			"char",	1,	0},
+	//{"family",		"char",	1,	0},
+	//{"owner",			"char", 1,	0},
+	//{"patrol",		"char", 1,	0},
+	//{"finger1",		"char",32,	0},
+	//{"finger2",			"char",32,0},
+	//{"finger1type",	"int",1,	0},
+	//{"finger2type",	"int",1,	0},
 };
 
 #define RECORD_VCARD(x) \
@@ -132,14 +138,15 @@ static stTableItem_t person_items[] = {
 	((stVcard_t*)x)->stime,\
 	((stVcard_t*)x)->etime
 static stTableItem_t vcard_items[] = {
-	{"uuid",			"char", 32,	1},
+	{"uuid",			"char", 36,	1},
 	{"vtype",			"int",	1,	0},
-	{"vcardid",		"char",	32,	0},
+	{"vcardid",		"char",	52,	0},
 	{"state",			"int",	1,	0},
-	{"stime",			"int",	1,	0},
-	{"etime",			"int",	1,	0},
+	{"stime",			"char",	32,	0},
+	{"etime",			"char",	32,	0},
 };
 
+/*
 #define RECORD_DEVICE(x) \
 	((stDevice_t*)x)->uuid,\
 	((stDevice_t*)x)->name,\
@@ -155,7 +162,9 @@ static stTableItem_t device_items[] = {
 	{"gw_uuid",		"char",	32,	0},
 	{"capability","int",	1,	0},
 };
+*/
 
+/*
 #define RECORD_VCARD_DEVICE(x) \
 	((stVcardDevice_t*)x)->vcard_uuid,\
 	((stVcardDevice_t*)x)->dev_uuid,\
@@ -171,71 +180,101 @@ static stTableItem_t vcard_device_items[] = {
 	{"etime",				"int",	1,	0},
 	{"capability",	"int",	1,	0},
 };
+*/
 
 #define RECORD_VCARD_PERSON(x) \
 	((stVcardPerson_t*)x)->vcard_uuid,\
 	((stVcardPerson_t*)x)->person_uuid
 static stTableItem_t vcard_person_items[] = {
-	{"vcard_uuid",			"char",	32,	0},
-	{"person_uuid",			"char",	32,	0},
+	{"vcard_uuid",			"char",	36,	0},
+	{"person_uuid",			"char",	36,	0},
 };
 
 #define RECORD_DEVICE_STATUS(x) \
 	((stDeviceStatus_t*)x)->dev_uuid,\
-	((stDeviceStatus_t*)x)->status,\
+	((stDeviceStatus_t*)x)->mac,\
+	/*((stDeviceStatus_t*)x)->status,*/\
 	((stDeviceStatus_t*)x)->hwversion,\
 	((stDeviceStatus_t*)x)->sfversion,\
+	((stDeviceStatus_t*)x)->imsi,\
+	((stDeviceStatus_t*)x)->msisdn,\
 	((stDeviceStatus_t*)x)->battery,\
 	((stDeviceStatus_t*)x)->temperature,\
+	((stDeviceStatus_t*)x)->signal,\
+	((stDeviceStatus_t*)x)->card_capacity,\
+	((stDeviceStatus_t*)x)->whitelist_count,\
+	((stDeviceStatus_t*)x)->finger_capacity,\
+	((stDeviceStatus_t*)x)->finger_count,\
 	((stDeviceStatus_t*)x)->onoff,\
 	((stDeviceStatus_t*)x)->workmode,\
 	((stDeviceStatus_t*)x)->powermode
 static stTableItem_t device_status_items[] = {
-	{"dev_uuid",		"char",	32,	0},
-	{"status",			"int",	1,	0},
+	{"dev_uuid",		"char",	36,	0},
+	{"mac",					"char",	32, 0},
+	//{"status",			"int",	1,	0},
 	{"hwversion",		"char",	32,	0},
 	{"sfversion",		"char",	32,	0},
+	{"imsi",				"char", 32, 0},
+	{"msisdn",			"char", 32, 0},
 	{"battery",			"int",	1,	0},
 	{"temperature",	"int",	1,	0},
-	{"onoff",				"int",	1,	0},
+	{"signal",					"int",	1,	0},
+	{"card_capacity",		"int",	1,	0},
+	{"whitelist_count",	"int",	1,	0},
+	{"finger_capacity",	"int",	1,	0},
+	{"finger_count",		"int",	1,	0},
+	{"onoff",					"int",	1,	0},
 	{"workmode",		"int",	1,	0},
 	{"powermode",		"int",	1,	0},
 };
 
 #define RECORD_LOCK_RECORD(x) \
-	((stLockRecord_t*)x)->vcard_uuid,\
-	((stLockRecord_t*)x)->person_uuid,\
-	((stLockRecord_t*)x)->timestamp,\
+	/*((stLockRecord_t*)x)->vcard_uuid,*/\
+	/*((stLockRecord_t*)x)->person_uuid,*/\
+	/*((stLockRecord_t*)x)->timestamp,*/\
+	((stLockRecord_t*)x)->vcardid,\
 	((stLockRecord_t*)x)->mac,\
 	((stLockRecord_t*)x)->opentype,\
-	((stLockRecord_t*)x)->area_uuid,\
-	((stLockRecord_t*)x)->vcardid,\
-	((stLockRecord_t*)x)->area_code
+	((stLockRecord_t*)x)->slide_date,\
+	((stLockRecord_t*)x)->dev_uuid,\
+	((stLockRecord_t*)x)->dev_number
+	/*((stLockRecord_t*)x)->area_uuid,*/\
+	/*((stLockRecord_t*)x)->vcardid,*/\
+	/*((stLockRecord_t*)x)->area_code*/
 static stTableItem_t lock_record_items[] = {
-	{"vcard_uuid",	"char",	32,	0},
-	{"person_uuid",	"char",	32,	0},
-	{"timestamp",		"int",	1,	0},
+	{"vcardid",			"char",	36,	0},
 	{"mac",					"char",	32,	0},
 	{"opentype",		"int",	1,	0},
-	{"area_uuid",		"char",	32,	0},
-	{"vcardid",			"char",	32,	0},
-	{"area_code",		"char",	60,	0},
+	{"slide_date",	"char",	32, 0},
+	{"dev_uuid",		"char", 36, 0},
+	{"dev_number",	"char", 36, 0},
+	//{"vcard_uuid",	"char",	32,	0},
+	//{"person_uuid",	"char",	32,	0},
+	//{"timestamp",		"int",	1,	0},
+	//{"area_uuid",		"char",	32,	0},
+	//{"area_code",		"char",	60,	0},
 };
 
 #define RECORD_DEVICE_ALARM(x) \
-	((stDeviceAlarm_t*)x)->dev_uuid,\
-	((stDeviceAlarm_t*)x)->timestamp,\
-	((stDeviceAlarm_t*)x)->mac,\
+	((stDeviceAlarm_t*)x)->occur_date,\
 	((stDeviceAlarm_t*)x)->type,\
-	((stDeviceAlarm_t*)x)->area_uuid,\
+	((stDeviceAlarm_t*)x)->mac,\
+	((stDeviceAlarm_t*)x)->dev_uuid,\
 	((stDeviceAlarm_t*)x)->vcardid
+	/*((stDeviceAlarm_t*)x)->slide_date,*/\
+	/*((stDeviceAlarm_t*)x)->dev_number,*/\
+	/*((stDeviceAlarm_t*)x)->dev_uuid,*/\
+	/*((stDeviceAlarm_t*)x)->timestamp,*/\
+	/*((stDeviceAlarm_t*)x)->area_uuid,*/
 static stTableItem_t device_alarm_items[] = {
-	{"dev_uuid",		"char",	32,	0},
-	{"timestamp",		"int",	1,	0},
-	{"mac",					"char",	32,	0},
+	{"occur_date",	"char",	32, 0},
 	{"type",				"int",	1,	0},
-	{"area_uuid",		"char",	32,	0},
-	{"vcardid",			"char",	32,	0},
+	{"mac",					"char",	32,	0},
+	{"dev_uuid",		"char",	36,	0},
+	{"vcardid",			"char",	36,	0},
+	//{"timestamp",		"int",	1,	0},
+	//{"area_uuid",		"char",	32,	0},
+	//{"dev_number",	"char",	36, 0},
 };
 
 #define RECORD_LOG(x) \
@@ -255,10 +294,10 @@ static stTableItem_t log_items[] = {
 static stTableOperaion_t tblops[] = {
 	{"basicinfo",			ARRAY_SIZE(basicinfo_items),			basicinfo_items,			NULL, NULL, NULL, NULL, NULL},
 	{"person",				ARRAY_SIZE(person_items),				person_items,				NULL, NULL, NULL, NULL, NULL},
-	{"device",				ARRAY_SIZE(device_items),				device_items,				NULL, NULL, NULL, NULL, NULL},
+	//{"device",				ARRAY_SIZE(device_items),				device_items,				NULL, NULL, NULL, NULL, NULL},
 	{"vcard",					ARRAY_SIZE(vcard_items),				vcard_items,				NULL, NULL, NULL, NULL, NULL},
 	{"vcard_person", ARRAY_SIZE(vcard_person_items),	vcard_person_items,	NULL, NULL, NULL, NULL, NULL},
-	{"vcard_device", ARRAY_SIZE(vcard_device_items),	vcard_device_items,	NULL, NULL, NULL, NULL, NULL},
+	//{"vcard_device", ARRAY_SIZE(vcard_device_items),	vcard_device_items,	NULL, NULL, NULL, NULL, NULL},
 	{"device_status", ARRAY_SIZE(device_status_items),device_status_items,NULL, NULL, NULL, NULL, NULL},
 	{"lock_record",		ARRAY_SIZE(lock_record_items),	lock_record_items,	NULL, NULL, NULL, NULL, NULL},
 	{"device_alarm",	ARRAY_SIZE(device_alarm_items),	device_alarm_items,	NULL, NULL, NULL, NULL, NULL},
@@ -271,23 +310,23 @@ static stTableOperaion_t tblops[] = {
 		sprintf(buf, op, RECORD_BASEINFO(record));\
 	} else if (strcmp(tblname, "person") == 0) {\
 		sprintf(buf, op, RECORD_PERSON(record));\
-	} else if (strcmp(tblname, "device") == 0) {\
-		sprintf(buf, op, RECORD_DEVICE(record));\
+	/*} else if (strcmp(tblname, "device") == 0) {*/\
+		/*sprintf(buf, op, RECORD_DEVICE(record));*/\
 	} else if (strcmp(tblname, "vcard") == 0) {\
 		sprintf(buf, op, RECORD_VCARD(record));\
 	} else if (strcmp(tblname, "vcard_person") == 0) {\
 		sprintf(buf, op, RECORD_VCARD_PERSON(record));\
-	} else if (strcmp(tblname, "vcard_device") == 0) {\
-		sprintf(buf, op, RECORD_VCARD_DEVICE(record));\
+	/*} else if (strcmp(tblname, "vcard_device") == 0) {*/\
+		/*sprintf(buf, op, RECORD_VCARD_DEVICE(record));*/\
 	} else if (strcmp(tblname, "device_status") == 0) {\
 		sprintf(buf, op, RECORD_DEVICE_STATUS(record));\
 	} else if (strcmp(tblname, "lock_record") == 0) {\
 		sprintf(buf, op, RECORD_LOCK_RECORD(record));\
 	} else if (strcmp(tblname, "device_alarm") == 0) {\
 		sprintf(buf, op, RECORD_DEVICE_ALARM(record));\
-	} else if (strcmp(tblname, "log") == 0) {\
-		sprintf(buf, op, RECORD_LOG(record));\
-	} \
+	/*} else if (strcmp(tblname, "log") == 0) {*/\
+		/*sprintf(buf, op, RECORD_LOG(record));*/\ 
+	}\
 } while (0);
 
 

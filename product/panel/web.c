@@ -7,6 +7,13 @@
 #include "ds.h"
 #include "json_parser.h"
 
+#include "common.h"
+#include "ayla/log.h"
+#include "ayla/timer.h"
+#include "ayla/file_event.h"
+
+
+
 
 static stWebEnv_t we = {
 	.ip		= "192.168.0.6",
@@ -16,15 +23,17 @@ static stWebEnv_t we = {
 	.user = "admin",
 	.pass = "admin",
 	//.currpage = 3,
+	.th = NULL,
+	.fet = NULL,
 };
 
 static const char *tablenames[] = {
 //	"basicinfo",
 	"person",
-	"device",
+	//"device",
 	"vcard",
 	"vcard_person",
-	"vcard_device",
+	//"vcard_device",
 	"device_status",
 	"lock_record",
 	"device_alarm",
@@ -33,7 +42,8 @@ static const char *tablenames[] = {
 /* 1   1   1   */
 /* add mod del*/
 static int tableops[] = {
-	0x7, 0x7, 0x7, 0x7, 0x7,
+	0x7, 0x7, 0x7, 
+	//0x7, 0x7,
 	//0x7, 0x7, 0x7
 	0x1, 0x1, 0x1, 0x1
 	//0x0, 0x0, 0x0, 0x0
@@ -74,6 +84,11 @@ static void api_db_import_func(httpd *server, httpReq *req);
 static void api_db_export_func(httpd *server, httpReq *req);
 static void api_db_setpass_func(httpd *server, httpReq *req);
 
+
+static void api_devdbm_add_person(httpd *server, httpReq *req);
+static void api_devdbm_rm_person(httpd *server, httpReq *req);
+static void api_devdbm_add_card(httpd *server, httpReq *req);
+static void api_devdbm_rm_card(httpd *server, httpReq *req);
 
 static void web_render_table(httpd *server, httpReq *req, const char *tblname, int start, int count);
 
@@ -120,6 +135,11 @@ static stWebNode_t wns[] = {
 	{PT_CFUNC, "/api/db/",	"import",			0,						NULL, api_db_import_func,				INVALID_ITEM, INVALID_ITEM},
 	{PT_CFUNC, "/api/db/",	"export",			0,						NULL, api_db_export_func,				INVALID_ITEM, INVALID_ITEM},
 	{PT_CFUNC, "/api/ad/",	"setpass",		0,						NULL, api_db_setpass_func,			INVALID_ITEM, INVALID_ITEM},
+
+	{PT_CFUNC, "/api/dev_dbm/",	"add_person",		0,			NULL, api_devdbm_add_person,		INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/dev_dbm/",	"rm_person",		0,			NULL, api_devdbm_rm_person,			INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/dev_dbm/",	"add_card",			0,			NULL, api_devdbm_add_card,			INVALID_ITEM, INVALID_ITEM},
+	{PT_CFUNC, "/api/dev_dbm/",	"rm_card",			0,			NULL, api_devdbm_rm_card,				INVALID_ITEM, INVALID_ITEM},
 };
 
 
@@ -1332,6 +1352,7 @@ static void api_db_insert_func(httpd *server, httpReq *req) {
 	printf("[%s] [%d] : tblname : %s\n", __func__, __LINE__, tblname);
 	int ops = web_get_ops(tblname);
 	if ((ops &0x4) == 0) {
+		json_decref(jarg);
 		return;
 	}
 
@@ -1421,6 +1442,7 @@ static void api_db_update_func(httpd *server, httpReq *req) {
 	}
 	int ops = web_get_ops(tblname);
 	if ((ops &0x2) == 0) {
+		json_decref(jarg);
 		return;
 	}
 
@@ -1644,6 +1666,7 @@ static void api_db_delete_func(httpd *server, httpReq *req) {
 	}
 	int ops = web_get_ops(tblname);
 	if ((ops &0x1) == 0) {
+		json_decref(jarg);
 		return;
 	}
 
@@ -1724,6 +1747,7 @@ static void api_db_import_func(httpd *server, httpReq *req) {
 
 	char *urldb = (char *)json_get_string(jarg, "dburl");
 	if (urldb == NULL) {
+		json_decref(jarg);
 		return;
 	}
 
@@ -1788,6 +1812,7 @@ static void api_db_setpass_func(httpd *server, httpReq *req) {
 	char *newpass = (char *)json_get_string(jarg, "newpass");
 	
 	if (oldpass == 0 || newpass == 0) {
+		json_decref(jarg);
 		return;
 	}
 
@@ -1802,6 +1827,184 @@ static void api_db_setpass_func(httpd *server, httpReq *req) {
 	free(retstr);
 
 	json_decref(jarg);
+}
+
+/* for clound server */
+static void api_devdbm_add_person(httpd *server, httpReq *req) {
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *uuid = (char *)json_get_string(jarg, "uuid");
+	char *name = (char *)json_get_string(jarg, "name");
+	char *sex  = (char *)json_get_string(jarg, "sex");
+	
+	if (uuid == 0 || name == 0 || sex == 0) {
+		json_decref(jarg);
+		return;
+	}
+
+	stTableRecord_t tr;
+	strncpy(tr.person.name, name, sizeof(tr.person.name));
+	strncpy(tr.person.uuid, uuid, sizeof(tr.person.uuid));
+	tr.person.sex = sex[0];
+	ds_insert_record("person", &tr);
+
+	/* return */
+	json_t *jret = json_object();
+	json_t *jpayload = json_object();
+	json_object_set_new(jret, "status",json_integer(0));
+	json_object_set_new(jret, "payload", jpayload);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
+}
+static void api_devdbm_rm_person(httpd *server, httpReq *req) {
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *uuid = (char *)json_get_string(jarg, "uuid");
+	
+	if (uuid == 0) {
+		json_decref(jarg);
+		return;
+	}
+
+	char where[256];
+	sprintf(where, "where uuid = '%s'", uuid);
+	ds_delete_record("person", where);
+
+	/* return */
+	json_t *jret = json_object();
+	json_t *jpayload = json_object();
+	json_object_set_new(jret, "status",json_integer(0));
+	json_object_set_new(jret, "payload", jpayload);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
+}
+
+static void api_devdbm_add_card(httpd *server, httpReq *req) {
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *uuid				= (char *)json_get_string(jarg, "uuid");
+	char *card_number = (char *)json_get_string(jarg, "card_number");
+	char *card_type	  = (char *)json_get_string(jarg, "card_type");
+	char *state_			= (char *)json_get_string(jarg, "state_");
+	char *es					= (char *)json_get_string(jarg, "effective_start_time");
+	char *ee					= (char *)json_get_string(jarg, "effective_end_time");
+	
+	if (uuid == 0 || card_number == 0 || card_type == 0 || state_ == 0 || es == 0 || ee == NULL) {
+		json_decref(jarg);
+		return;
+	}
+
+	stTableRecord_t tr;
+	strncpy(tr.vcard.uuid, uuid, sizeof(tr.vcard.uuid));
+	tr.vcard.vtype = atoi(card_type);
+	strncpy(tr.vcard.vcardid, card_number, sizeof(tr.vcard.vcardid));
+	tr.vcard.state = atoi(state_);
+	strncpy(tr.vcard.stime, es, sizeof(tr.vcard.stime));
+	strncpy(tr.vcard.etime, ee, sizeof(tr.vcard.etime));
+	ds_insert_record("vcard", &tr);
+
+	/* return */
+	json_t *jret = json_object();
+	json_t *jpayload = json_object();
+	json_object_set_new(jret, "status",json_integer(0));
+	json_object_set_new(jret, "payload", jpayload);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
+}
+
+static void api_devdbm_rm_card(httpd *server, httpReq *req) {
+	httpVar *val = httpdGetVariableByName(server, req, "argements");
+	if (val == NULL || val->value == NULL) {
+		return;
+	}
+
+	json_error_t err;
+	json_t *jarg = json_loads(val->value, 0, &err);
+	if (jarg == NULL) {
+		return;
+	}
+
+	char *uuid = (char *)json_get_string(jarg, "uuid");
+	
+	if (uuid == 0) {
+		json_decref(jarg);
+		return;
+	}
+
+	char where[256];
+	sprintf(where, "where uuid = '%s'", uuid);
+	ds_delete_record("vcard", where);
+
+	/* return */
+	json_t *jret = json_object();
+	json_t *jpayload = json_object();
+	json_object_set_new(jret, "status",json_integer(0));
+	json_object_set_new(jret, "payload", jpayload);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+
+	json_decref(jarg);
+
+}
+
+
+////////////////////////////////////////////////////////////////////////
+void web_init(void *_th, void *_fet, const char *ip, int port, const char *base) {
+	we.th = _th;
+	we.fet = _fet;
+
+	web_start(ip, port, base);
+
+	file_event_reg(we.fet, web_getfd(), web_in, NULL, NULL);
+}
+void web_step() {
+}
+void web_push(void *task) {
+}
+void web_run(void *timer) {
+}
+void web_in(void *arg, int fd) {
+	web_loop();
+}
+int  web_getfd() {
+	return web_socket_get();
 }
 
 
