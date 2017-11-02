@@ -28,6 +28,8 @@
 #include "ayla/timer.h"
 #include "ayla/file_event.h"
 
+#include "task.h"
+#include "trig.h"
 
 #if 0
 static void base64_test();
@@ -264,7 +266,7 @@ static void run_main() {
 
 	database_init();
 	task_init(&th, &fet);
-	//trig_init(&th, &fet);
+	trig_init(&th, &fet);
 	web_init(&th, &fet, ip, port, webbase);
 
 	timer_set(&th, &tr, 10);
@@ -403,7 +405,7 @@ static size_t req_reply(void *ptr, size_t size, size_t nmemb, void *stream) {
 
 	char *ptrString = (char *)ptr;
 	char *outString = (char *)stream;
-	strcat(outString, ptrString);
+	strncat(outString, ptrString, size*nmemb);
 
 	return size * nmemb;  
 }  

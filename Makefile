@@ -28,6 +28,7 @@ algosrcs				+= $(ROOTDIR)/lib/src/libhttpd-2.0/protocol.c
 algosrcs				+= $(ROOTDIR)/lib/src/libhttpd-2.0/version.c
 algosrcs				+= $(ROOTDIR)/lib/lweb.c
 algosrcs				+= $(ROOTDIR)/lib/util.cpp
+algosrcs				+= $(ROOTDIR)/lib/cloud.cpp
 
 algosrcs				+= $(ROOTDIR)/lib/src/jansson/dump.c       
 algosrcs				+= $(ROOTDIR)/lib/src/jansson/hashtable_seed.c  
@@ -51,6 +52,7 @@ smdsrcs				+= $(algosrcs)
 smdsrcs				+= $(ROOTDIR)/product/panel/web.c
 smdsrcs				+= $(ROOTDIR)/product/panel/task.c
 smdsrcs				+= $(ROOTDIR)/product/panel/trig.c
+smdsrcs				+= $(ROOTDIR)/product/panel/comm.c
 smdsrcs				+= $(ROOTDIR)/src/ayla/log.c
 smdsrcs				+= $(ROOTDIR)/src/ayla/lookup_by_name.c
 smdsrcs				+= $(ROOTDIR)/src/ayla/timer.c
@@ -58,6 +60,10 @@ smdsrcs				+= $(ROOTDIR)/src/ayla/time_utils.c
 smdsrcs				+= $(ROOTDIR)/src/ayla/assert.c
 smdsrcs				+= $(ROOTDIR)/src/ayla/file_event.c
 smdsrcs				+= $(ROOTDIR)/src/ayla/file_io.c
+smdsrcs				+= $(ROOTDIR)/src/lockqueue.c
+smdsrcs				+= $(ROOTDIR)/src/list.c
+smdsrcs				+= $(ROOTDIR)/src/mutex.c
+smdsrcs				+= $(ROOTDIR)/src/cond.c
 
 
 smdsrcs				:= $(subst .cpp,.c,$(smdsrcs))

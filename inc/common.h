@@ -1,9 +1,9 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <utypes.h>
 
 #define MAJOR 1
 #define MINOR 0
@@ -17,17 +17,25 @@
 #define MALLOC(size) malloc(size)
 #define FREE(p) free(p)
 
-//#ifndef bool
-//#define bool unsigned int
-//#endif
+#ifndef bool
+#define bool unsigned int
+#endif
 
-//#ifndef true
-//#define true (!!1)
-//#endif
+#ifndef true
+#define true (!!1)
+#endif
 
-//#ifndef false
-//#define false (!!0)
-//#endif
+#ifndef false
+#define false (!!0)
+#endif
+
+#ifndef u64
+#define u64 unsigned long long
+#endif
+
+#ifndef s64
+#define s64 long long
+#endif
 
 //#define ASSERT(x) do { if (!(x)) exit(0); } while (0)
 

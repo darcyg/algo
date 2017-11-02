@@ -45,6 +45,7 @@ typedef int64_t		s64;
 #define MIN_S16		INT16_MIN
 #define MIN_S32		INT32_MIN
 #define MIN_S64		INT64_MIN
+
 #endif /* UTYPES */
 
 typedef u16		le16;
