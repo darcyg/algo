@@ -61,8 +61,7 @@ int cloud_http_pst(const char *url, const char *postParams, stCloudRes_t *respon
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postParams); // params  
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // if want to use https  
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // set peer and host verify false  
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);  
-		//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);  
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, CLOUD_ENABLE_DEBUG);  
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);  
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, req_reply);  
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);  
@@ -90,8 +89,7 @@ int cloud_http_get(const char *url, stCloudRes_t *response) {
 		curl_easy_setopt(curl, CURLOPT_URL, url); // url  
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // if want to use https  
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // set peer and host verify false  
-		//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);  
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);  
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, CLOUD_ENABLE_DEBUG);  
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);  
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, req_reply);  
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);  

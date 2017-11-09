@@ -36,6 +36,8 @@ void simu_run(struct timer *timer);
 void trig_in(void *arg, int fd);
 int  trig_getfd();
 
+//#define TRIG_DELT (1000*60*15)
+#define TRIG_DELT (1000*60)
 
 
 #endif

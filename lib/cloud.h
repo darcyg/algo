@@ -24,6 +24,8 @@ int cloud_http_pst(const char *url, const char *postParams, stCloudRes_t *respon
 int cloud_http_get(const char *url, stCloudRes_t *response); 
 
 
+#define CLOUD_ENABLE_DEBUG 0
+
 #ifdef __cplusplus
 }
 #endif

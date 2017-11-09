@@ -81,5 +81,7 @@ $(eval $(call LinkLio,libalgo_$(ALGO_VERSION).so,$(algoobjs)))
 $(eval $(call LinkApp,smd,$(smdobjs)))
 
 run :  
-	@export LD_LIBRARY_PATH=$(ROOTDIR)/build/;cp $(ROOTDIR)/build/smd $(ROOTDIR)/devroot/ -rf; sudo $(ROOTDIR)/build/smd -i 192.168.0.6 -p 10888
+	export LD_LIBRARY_PATH=$(ROOTDIR)/devroot/;
+	cp $(ROOTDIR)/build/smd $(ROOTDIR)/devroot/ -rf;
+	sudo $(ROOTDIR)/build/smd -i 192.168.0.6 -p 10888
 

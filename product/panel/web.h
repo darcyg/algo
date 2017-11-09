@@ -1,8 +1,13 @@
 #ifndef __WEB_H_
 #define __WEB_H_
 
-#include "lweb.h"
 #include "common.h"
+#include "ayla/log.h"
+#include "ayla/timer.h"
+#include "ayla/file_event.h"
+#
+#include "lweb.h"
+#include "comm.h"
 
 #ifdef __cplusplus 
 extern "C" {
@@ -87,8 +92,8 @@ int web_loop();
 
 void web_init(void *_th, void *_fet, const char *ip, int port, const char *base);
 void web_step();
-void web_push(void *task);
-void web_run(void *timer);
+void web_push(emTaskType_t type, void *data, int len);
+void web_run(struct timer *timer);
 void web_in(void *arg, int fd);
 int  web_getfd();
 

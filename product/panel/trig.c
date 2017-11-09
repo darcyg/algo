@@ -1,5 +1,7 @@
 #include "trig.h"
 #include "task.h"
+#include "comm.h"
+#include "ds.h"
 
 static stTrigEnv_t te = {
 	.fet = NULL,
@@ -18,7 +20,7 @@ void trig_init(void *_th, void *_fet) {
 	timer_init(&te.step_timer,		trig_run);
 	lockqueue_init(&te.msgq);
 
-	timer_set(te.th, &te.simu_timer, 1000*60*15);
+	timer_set(te.th, &te.simu_timer, TRIG_DELT);
 }
 
 void trig_step() {
@@ -27,13 +29,16 @@ void trig_step() {
 }
 void trig_push(emTaskType_t type, void *data, int len) {
 
-	stTask_t *t = MALLOC(sizeof(stTask_t));
+	stTask_t *t = MALLOC(sizeof(stTask_t) + len);
 	if (t == NULL) {
 		 return ;
 	}
 	t->type = type;
-	t->data = data;
+	t->data = (void *)(t+1);
 	t->len = len;
+	if (t->len > 0) {
+		memcpy(t->data, data, t->len);
+	}
 
 	lockqueue_push(&te.msgq, t);
 
@@ -55,19 +60,41 @@ void simu_run(struct timer *timer) {
 	
 	if (i == 0) {
 		t = TT_RPT_RECORD;
-		len = sizeof(stAccessRecord_t);
-		data = (stAccessRecord_t*)malloc(len);
+
+		stTableRecord_t tr;
+		int ret = ds_search_record_simple("basicinfo", &tr, "limit 0, 1");
+		if (ret != 1) {
+			log_info("Can't Search baseinfo");
+		} else {
+			stAccessRecord_t a;
+			memset(&a, 0, sizeof(a));
+			strcpy(a.mac, tr.basic.mac);
+			strcpy(a.dev_uuid, tr.basic.uuid);
+			strcpy(a.dev_number, tr.basic.dev_number);
+			task_push(t, (void *)&a, sizeof(stAccessRecord_t));
+		}
 	} else if (i == 1) {
 		t = TT_RPT_ALARM;
-		len = sizeof(stAlarm_t);
-		data = (stAlarm_t*)malloc(len);
+
+		stTableRecord_t tr;
+		int ret = ds_search_record_simple("basicinfo", &tr, "limit 0, 1");
+		if (ret != 1) {
+			log_info("Can't Search baseinfo");
+		} else {
+			stAlarm_t a;
+			memset(&a, 0, sizeof(a));
+			strcpy(a.mac, tr.basic.mac);
+			strcpy(a.device_uuid, tr.basic.uuid);
+
+			task_push(t, (void *)&a, sizeof(stAlarm_t));
+		}
+
 	} 
 
-	task_push(t, data,len);
 	task_step();
 	i = (i + 1) % 2;
 
-	timer_set(te.th, &te.simu_timer, 1000*60*15);
+	timer_set(te.th, &te.simu_timer, TRIG_DELT);
 }
 
 void trig_in(void *arg, int fd) {

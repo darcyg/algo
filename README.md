@@ -71,4 +71,6 @@
 	ds_search_record : 查询记录  
 
 
+## 
+ report the alarm status record and write to local db
 

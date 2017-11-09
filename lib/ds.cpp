@@ -464,10 +464,14 @@ static int ds_sqlite3_exec_callback(void *data, int argc, char **argv, char **az
 			if (ee->cb != NULL) {
 				((SEARCH_CB)(ee->cb))(&tr, ee->arg);
 			}
+
+			ee->ret++;
 		}
 		break;
 	case CBMODE_COUNT:
 		ee->ret = atoi(argv[0]);
+		break;
+	case CBMODE_UPDATE:
 		break;
 	default:
 		break;
@@ -478,7 +482,7 @@ static int ds_sqlite3_exec_callback(void *data, int argc, char **argv, char **az
 static int ds_sqlite3_exec(const char *buf, void *data) {
 	char *zErrMsg = NULL;
 
-	log_debug("[%s] %s\n", __func__, buf);
+	log_debug("[%s] <%s>\n", __func__, buf);
 
 	int rc	= sqlite3_exec((sqlite3 *)ds.db, buf, ds_sqlite3_exec_callback, data, &zErrMsg);
 
@@ -782,6 +786,29 @@ int ds_update_record(const char *tblname, stTableRecord_t *record, const char *w
 	return ret;
 }
 
+
+int ds_update_record_simple(const char *tblname, const char *set_and_where, ...) {
+	stTableOperaion_t *to = ds_search_table_operation(tblname);
+	if (to == NULL) {
+		log_warn("Invalid table name : %s\n", tblname);
+		return -1;
+	}
+
+	char wbuf[256];
+	va_list ap;
+	va_start(ap, set_and_where);
+	vsprintf(wbuf, set_and_where, ap);
+	va_end(ap);
+	
+	char buf[512];
+	sprintf(buf, "update %s %s;", tblname, wbuf);
+
+	stExecEnv_t ee = { CBMODE_UPDATE, to, -1, NULL, NULL};
+	int ret = ds_sqlite3_exec(buf, &ee);
+
+	return ret;
+}
+
 int ds_delete_record(const char *tblname, const char *where, ...) {
 	//log_debug("[%s] ]%d] <%s>\n", __func__, __LINE__, tblname);
 
@@ -842,6 +869,44 @@ int ds_search_record(const char *tblname,
 	/* compare and fill result */
 
 	return ret;
+}
+
+
+static int ds_search_record_simple_cb(stTableRecord_t *tr, void *arg) {
+	if (arg != NULL && tr != NULL) {
+		stTableRecord_t *dst_tr = (stTableRecord_t *)arg;
+		memcpy(dst_tr, tr, sizeof(stTableRecord_t));
+	}
+	return 0;
+}
+int ds_search_record_simple(const char *tblname, stTableRecord_t *tr, const char *where, ...) {
+	//log_debug("[%s] ]%d] <%s>\n", __func__, __LINE__, tblname);
+	stTableOperaion_t *to = ds_search_table_operation(tblname);
+	if (to == NULL) {
+		log_warn("Invalid table name : %s\n", tblname);
+		return -1;
+	}
+
+	char buf[512];
+	sprintf(buf, to->search, tblname);
+
+	char wbuf[256];
+	va_list ap;
+	va_start(ap, where);
+	vsprintf(wbuf, where, ap);
+	va_end(ap);
+
+	sprintf(buf + strlen(buf), "%s;", wbuf);
+
+	stExecEnv_t ee = { CBMODE_SEARCH, to, 0, (void*)ds_search_record_simple_cb, (void*)tr};
+	int ret = ds_sqlite3_exec(buf, &ee);
+
+	printf("ret is %d, ee.ret is %d\n", ret, ee.ret);
+	if (ret != 0 || ee.ret == 0) {
+		return -2;
+	}
+
+	return ee.ret;
 }
 
 

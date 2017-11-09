@@ -8,6 +8,7 @@
 #include "json_parser.h"
 
 #include "common.h"
+#include "comm.h"
 #include "ayla/log.h"
 #include "ayla/timer.h"
 #include "ayla/file_event.h"
@@ -28,7 +29,7 @@ static stWebEnv_t we = {
 };
 
 static const char *tablenames[] = {
-//	"basicinfo",
+	//"basicinfo",
 	"person",
 	//"device",
 	"vcard",
@@ -42,6 +43,7 @@ static const char *tablenames[] = {
 /* 1   1   1   */
 /* add mod del*/
 static int tableops[] = {
+	//0x7,
 	0x7, 0x7, 0x7, 
 	//0x7, 0x7,
 	//0x7, 0x7, 0x7
@@ -69,11 +71,11 @@ static void web_render_other(httpd *server, httpReq *req);
 
 static void web_render_status(httpd *server, httpReq *req);
 static void web_render_import_export(httpd *server, httpReq *req);
-static void web_render_import(httpd *server, httpReq *req);
-static void web_render_export(httpd *server, httpReq *req);
+//static void web_render_import(httpd *server, httpReq *req);
+//static void web_render_export(httpd *server, httpReq *req);
 static void web_render_modify(httpd *server, httpReq *req);
 static void web_render_admin(httpd *server, httpReq *req);
-static void web_render_about(httpd *server, httpReq *req);
+//static void web_render_about(httpd *server, httpReq *req);
 
 
 static void api_db_insert_func(httpd *server, httpReq *req);
@@ -392,6 +394,7 @@ static void web_render_status(httpd *server, httpReq *req) {
 
 
 }
+#if 0
 static void web_render_import(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"				<div class=\"disarea\">\n"
@@ -430,6 +433,7 @@ static void web_render_import(httpd *server, httpReq *req) {
 
 
 }
+#endif
 
 static void web_render_import_export(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
@@ -538,6 +542,7 @@ static void web_render_modify(httpd *server, httpReq *req) {
 	);
 }
 
+#if 0
 static void web_render_export(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"				<div class=\"disarea\">\n"
@@ -568,6 +573,7 @@ static void web_render_export(httpd *server, httpReq *req) {
 
 
 }
+#endif
 static void web_render_admin(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"				<div class=\"disarea\">\n"
@@ -605,6 +611,7 @@ static void web_render_admin(httpd *server, httpReq *req) {
 	);
 
 }
+#if 0
 static void web_render_about(httpd *server, httpReq *req) {
 	httpdPrintf(server, req, (char *)
 		"				<div class=\"disarea\">\n"
@@ -623,6 +630,7 @@ static void web_render_about(httpd *server, httpReq *req) {
 		"				</div>\n"
 	);
 }
+#endif
 
 
 static void web_render_other(httpd *server, httpReq *req) {
@@ -845,7 +853,7 @@ static void web_render_table(httpd *server, httpReq *req, const char *tblname, i
 		"								<th>Opeation</th>\n"
 		"							</tr>\n");
 
-	stReq_t r = {server, req, tblname, NULL};
+	stReq_t r = {server, req, (char *)tblname, NULL};
 	//ds_search_record(tblname, db_test_search_callback_1, &r, "between(recno(), %d, %d)", start, start + count);
 	ds_search_record(tblname, db_test_search_callback_1, &r, "limit %d,%d", start, count);
 
@@ -1830,15 +1838,26 @@ static void api_db_setpass_func(httpd *server, httpReq *req) {
 }
 
 /* for clound server */
+static void api_devdbm_response(httpd *server, httpReq *req, int status) {
+	json_t *jret = json_object();
+	json_t *jpayload = json_object();
+	json_object_set_new(jret, "status",json_integer(status));
+	json_object_set_new(jret, "payload", jpayload);
+	char *retstr = json_dumps(jret, 0);
+	httpdPrintf(server, req, retstr);
+	free(retstr);
+}
 static void api_devdbm_add_person(httpd *server, httpReq *req) {
 	httpVar *val = httpdGetVariableByName(server, req, "argements");
 	if (val == NULL || val->value == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
 	json_error_t err;
 	json_t *jarg = json_loads(val->value, 0, &err);
 	if (jarg == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
@@ -1847,6 +1866,7 @@ static void api_devdbm_add_person(httpd *server, httpReq *req) {
 	char *sex  = (char *)json_get_string(jarg, "sex");
 	
 	if (uuid == 0 || name == 0 || sex == 0) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		json_decref(jarg);
 		return;
 	}
@@ -1858,31 +1878,28 @@ static void api_devdbm_add_person(httpd *server, httpReq *req) {
 	ds_insert_record("person", &tr);
 
 	/* return */
-	json_t *jret = json_object();
-	json_t *jpayload = json_object();
-	json_object_set_new(jret, "status",json_integer(0));
-	json_object_set_new(jret, "payload", jpayload);
-	char *retstr = json_dumps(jret, 0);
-	httpdPrintf(server, req, retstr);
-	free(retstr);
+	api_devdbm_response(server, req, OSA_STATUS_OK);
 
 	json_decref(jarg);
 }
 static void api_devdbm_rm_person(httpd *server, httpReq *req) {
 	httpVar *val = httpdGetVariableByName(server, req, "argements");
 	if (val == NULL || val->value == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
 	json_error_t err;
 	json_t *jarg = json_loads(val->value, 0, &err);
 	if (jarg == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
 	char *uuid = (char *)json_get_string(jarg, "uuid");
 	
 	if (uuid == 0) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		json_decref(jarg);
 		return;
 	}
@@ -1892,13 +1909,7 @@ static void api_devdbm_rm_person(httpd *server, httpReq *req) {
 	ds_delete_record("person", where);
 
 	/* return */
-	json_t *jret = json_object();
-	json_t *jpayload = json_object();
-	json_object_set_new(jret, "status",json_integer(0));
-	json_object_set_new(jret, "payload", jpayload);
-	char *retstr = json_dumps(jret, 0);
-	httpdPrintf(server, req, retstr);
-	free(retstr);
+	api_devdbm_response(server, req, OSA_STATUS_OK);
 
 	json_decref(jarg);
 }
@@ -1906,12 +1917,14 @@ static void api_devdbm_rm_person(httpd *server, httpReq *req) {
 static void api_devdbm_add_card(httpd *server, httpReq *req) {
 	httpVar *val = httpdGetVariableByName(server, req, "argements");
 	if (val == NULL || val->value == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
 	json_error_t err;
 	json_t *jarg = json_loads(val->value, 0, &err);
 	if (jarg == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
@@ -1923,6 +1936,7 @@ static void api_devdbm_add_card(httpd *server, httpReq *req) {
 	char *ee					= (char *)json_get_string(jarg, "effective_end_time");
 	
 	if (uuid == 0 || card_number == 0 || card_type == 0 || state_ == 0 || es == 0 || ee == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		json_decref(jarg);
 		return;
 	}
@@ -1937,13 +1951,7 @@ static void api_devdbm_add_card(httpd *server, httpReq *req) {
 	ds_insert_record("vcard", &tr);
 
 	/* return */
-	json_t *jret = json_object();
-	json_t *jpayload = json_object();
-	json_object_set_new(jret, "status",json_integer(0));
-	json_object_set_new(jret, "payload", jpayload);
-	char *retstr = json_dumps(jret, 0);
-	httpdPrintf(server, req, retstr);
-	free(retstr);
+	api_devdbm_response(server, req, OSA_STATUS_OK);
 
 	json_decref(jarg);
 }
@@ -1951,18 +1959,21 @@ static void api_devdbm_add_card(httpd *server, httpReq *req) {
 static void api_devdbm_rm_card(httpd *server, httpReq *req) {
 	httpVar *val = httpdGetVariableByName(server, req, "argements");
 	if (val == NULL || val->value == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
 	json_error_t err;
 	json_t *jarg = json_loads(val->value, 0, &err);
 	if (jarg == NULL) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		return;
 	}
 
 	char *uuid = (char *)json_get_string(jarg, "uuid");
 	
 	if (uuid == 0) {
+		api_devdbm_response(server, req, OSA_STATUS_EINVAL);
 		json_decref(jarg);
 		return;
 	}
@@ -1972,13 +1983,7 @@ static void api_devdbm_rm_card(httpd *server, httpReq *req) {
 	ds_delete_record("vcard", where);
 
 	/* return */
-	json_t *jret = json_object();
-	json_t *jpayload = json_object();
-	json_object_set_new(jret, "status",json_integer(0));
-	json_object_set_new(jret, "payload", jpayload);
-	char *retstr = json_dumps(jret, 0);
-	httpdPrintf(server, req, retstr);
-	free(retstr);
+	api_devdbm_response(server, req, OSA_STATUS_OK);
 
 	json_decref(jarg);
 
@@ -1996,9 +2001,9 @@ void web_init(void *_th, void *_fet, const char *ip, int port, const char *base)
 }
 void web_step() {
 }
-void web_push(void *task) {
+void web_push(emTaskType_t type, void *data, int len) {
 }
-void web_run(void *timer) {
+void web_run(struct timer *timer) {
 }
 void web_in(void *arg, int fd) {
 	web_loop();
@@ -2006,5 +2011,6 @@ void web_in(void *arg, int fd) {
 int  web_getfd() {
 	return web_socket_get();
 }
+
 
 

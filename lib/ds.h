@@ -214,6 +214,19 @@ int ds_insert_record(const char *tblname, stTableRecord_t *record);
  */
 int ds_update_record(const char *tblname, stTableRecord_t *record, const char *where, ...);
 
+/* ds_update_record_simple
+ * 
+ * 更新数据记录
+ * 
+ * @param[in] tblname 表名称
+ * @param[in] set_and_where  更新语句及匹配条件 例如 x='%s' where uuid='%s', "keven", "0000"
+ * 
+ * @return 返回0表示OK, 其他表示失败
+ */
+int ds_update_record_simple(const char *tblname, const char *set_and_where, ...);
+
+
+
 /* ds_delete_record
  * 
  * 删除记录
@@ -243,6 +256,21 @@ int ds_search_record(const char *tblname,
 										 void *arg,
 										 const char *where,
 										 ...);
+/* ds_search_record_simple
+ * 
+ * 查找记录
+ * 
+ * @param[in] tblname 表名称
+ * @param[out] tr		记录指针
+ * @param[in] where  更新记录匹配条件
+ * @param[in] ...　可变参数, where 和 ...共同组成 sql where语句条件, 例如 name=%s, "keven", 表示 where name='keven'
+ * 
+ * @return 返回0表示OK, 其他表示失败
+ */
+int ds_search_record_simple(const char *tblname, stTableRecord_t *tr, const char *where, ...);
+
+
+
 
 /* ds_table_info
  * 

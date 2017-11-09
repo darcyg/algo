@@ -23,7 +23,7 @@ typedef struct stTaskHandler {
 }stTaskHandler_t;
 
 typedef struct stRegister {
-	char	mack[32];
+	char	mac[32];
 	char	uuid[36];
 }stRegister_t;
 
@@ -52,7 +52,7 @@ typedef struct stStatus {
 	int		battery;
 	int		temperature;
 	int		signal_;
-	int		capa_capacity;
+	int		card_capacity;
 	int		whitelist_count;
 	int		finger_capacity;
 	int		finger_count;
@@ -60,6 +60,14 @@ typedef struct stStatus {
 	int		work_mode;
 	int		power_mode;
 }stStatus_t;
+
+enum {
+	OSA_STATUS_OK = 0,
+	OSA_STATUS_EINVAL = 22,
+	OSA_STATUS_ENOMEM = 12,
+	OSA_STATUS_EEXIST = 17,
+	OSA_STATUS_ENOENT = 2,
+};
 
 
 void task_handler_task(stTask_t *t, stTaskHandler_t *th, int hcnt);
