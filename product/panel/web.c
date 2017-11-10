@@ -29,7 +29,7 @@ static stWebEnv_t we = {
 };
 
 static const char *tablenames[] = {
-	//"basicinfo",
+	"basicinfo",
 	"person",
 	//"device",
 	"vcard",
@@ -43,7 +43,7 @@ static const char *tablenames[] = {
 /* 1   1   1   */
 /* add mod del*/
 static int tableops[] = {
-	//0x7,
+	0x7,
 	0x7, 0x7, 0x7, 
 	//0x7, 0x7,
 	//0x7, 0x7, 0x7
@@ -1146,6 +1146,7 @@ static void menu_func(httpd *server, httpReq *req) {
 static void mod_func(httpd *server, httpReq *req) {
 	httpdDumpVariables(server, req);
 
+	
 	httpVar *val = httpdGetVariableByName(server, req, "curr");
 	if (val == NULL) {
 		httpdPrintf(server, req, (char *)
@@ -1209,7 +1210,7 @@ static void mod_func(httpd *server, httpReq *req) {
 	int ret = ds_table_info(tblname, &ti);
 	ret = ret;
 
-	char where[256] = {0};
+	char where[1024] = {0};
 	stReq_t r = {server, req, tblname, where};
 	ds_search_record(tblname, search_nline_callback, &r, "limit %d,%d", curr*10 + start, 1);
 	//len += sprintf(where, "where (select * from %s limit %d,%d)", tblname, curr * 10 + start, 1);
@@ -1270,7 +1271,7 @@ static void mod_func(httpd *server, httpReq *req) {
 		}
 	}
 
-	//printf("\n del %s\n", where);
+	//printf("\n update %s .. %s\n", tblname, where);
 	ds_update_record(tblname, &tr, where);
 	web_render_table(server, req, tblname, curr * 10, 10) ;
 

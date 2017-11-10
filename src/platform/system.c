@@ -6,6 +6,7 @@
  * with Ayla Networks, Inc., a copy of which can be obtained from
  * Ayla Networks, Inc.
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -72,6 +73,30 @@ static int get_mac_addr(char *mac, size_t size) {
 	return 0;
 }
 
+static int scmd(char *cmd, char *buf, int size) {
+	FILE *fp = popen(cmd, "r");
+	if (fp == NULL) {
+		return -1;
+	}
+
+	char *s = fgets(buf, size, fp);
+	if (s == NULL) {
+		return -2;
+	}
+
+	int len = strlen(s);
+	if (len > 1) {
+		s[len-1] = 0;
+	}
+
+	//log_debug("cmd : \n[%s].", cmd);
+	//log_debug("ret : \n[%s].", buf);
+
+	pclose(fp);
+
+	return 0;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -118,6 +143,13 @@ int platform_get_hw_id(char *buf, size_t size)
 
 	log_debug("platfrom hardware id is %s", buf);
 	
+	return 0;
+}
+
+int platform_get_ip(const char *ethx, char *buf, size_t size) {
+	char cmd[256];
+	sprintf(cmd, " ifconfig %s | grep inet  | xargs | cut -d \" \" -f 2 | cut -d \":\" -f 2", ethx);
+	scmd(cmd, buf, size);
 	return 0;
 }
 

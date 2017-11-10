@@ -122,7 +122,8 @@ int  task_getfd() {
 static void tt_register_handler(stTask_t *t) {
 	log_info("[%s]...", __func__);
 
-	const char *url = "http://101.132.153.33:5000/api/dev_dbm/register_device";
+	//const char *url = "http://101.132.153.33:5000/api/dev_dbm/register_device";
+	const char *url = "http://101.132.153.33/api/dev_dbm/register_device";
 
 	json_t *jarg = json_object();
 	if (jarg == NULL) {
@@ -170,6 +171,17 @@ static void tt_register_handler(stTask_t *t) {
 		log_warn("[%s ] failed : response is not json!", __func__);
 		return;
 	}
+	int status = -1;			 
+	if (json_get_int(jret, "status", &status) != 0) {
+		log_warn("[%s] failed : no status", __func__);
+		json_decref(jret);
+		return;
+	}
+	if (status != 0) {
+		log_warn("[%s] failed : %s", __func__, osa_get_error_string(status));
+		json_decref(jret);
+		return;
+	}
 		
 	json_t *jpayload = json_object_get(jret, "payload");
 	if (jpayload == NULL) {
@@ -204,7 +216,8 @@ static void tt_register_handler(stTask_t *t) {
 static void tt_rpt_dev_status(stTask_t *t) {
 	log_info("[%s]...", __func__);
 
-	const char *url = "http://101.132.153.33:5000/api/dev_dbm/report_device_status";
+	//const char *url = "http://101.132.153.33:5000/api/dev_dbm/report_device_status";
+	const char *url = "http://101.132.153.33/api/dev_dbm/report_device_status";
 
 	json_t *jarg = json_object();
 	if (jarg == NULL) {
@@ -273,7 +286,7 @@ static void tt_rpt_dev_status(stTask_t *t) {
 		return;
 	}
 	if (status != 0) {
-		log_warn("[%s] failed : %d", __func__, status);
+		log_warn("[%s] failed : %s", __func__, osa_get_error_string(status));
 		json_decref(jret);
 		return;
 	}
@@ -285,7 +298,8 @@ static void tt_rpt_dev_status(stTask_t *t) {
 static void tt_rpt_alarm(stTask_t *t) {
 	log_info("[%s]...", __func__);
 
-	const char *url = "http://101.132.153.33:5000/api/dev_dbm/report_alarm";
+	//const char *url = "http://101.132.153.33:5000/api/dev_dbm/report_alarm";
+	const char *url = "http://101.132.153.33/api/dev_dbm/report_alarm";
 
 	json_t *jarg = json_object();
 	if (jarg == NULL) {
@@ -344,7 +358,7 @@ static void tt_rpt_alarm(stTask_t *t) {
 		return;
 	}
 	if (status != 0) {
-		log_warn("[%s] failed : %d", __func__, status);
+		log_warn("[%s] failed : %s", __func__, osa_get_error_string(status));
 		json_decref(jret);
 		return;
 	}
@@ -357,7 +371,8 @@ static void tt_rpt_alarm(stTask_t *t) {
 static void tt_rpt_record(stTask_t *t) {
 	log_info("[%s]...", __func__);
 
-	const char *url = "http://101.132.153.33:5000/api/dev_dbm/report_access";
+	//const char *url = "http://101.132.153.33:5000/api/dev_dbm/report_access";
+	const char *url = "http://101.132.153.33/api/dev_dbm/report_access";
 
 	json_t *jarg = json_object();
 	if (jarg == NULL) {
@@ -417,7 +432,7 @@ static void tt_rpt_record(stTask_t *t) {
 		return;
 	}
 	if (status != 0) {
-		log_warn("[%s] failed : %d", __func__, status);
+		log_warn("[%s] failed : %s", __func__, osa_get_error_string(status));
 		json_decref(jret);
 		return;
 	}

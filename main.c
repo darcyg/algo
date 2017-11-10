@@ -23,7 +23,9 @@
 #include "curl.h"
 #include "json_parser.h"
 
+#include "platform/platform_.h"
 #include "common.h"
+#include "system.h"
 #include "ayla/log.h"
 #include "ayla/timer.h"
 #include "ayla/file_event.h"
@@ -58,7 +60,8 @@ static char apppath[256];
 static char basedir[256];
 static char dbpath[256];
 static char webbase[256];
-static char *ip = "0.0.0.0";
+static char ip[32];
+static char mac[32];
 static int  port = 80;
 static int ds_child_died = 0;
 static struct timer_head th = {.first = NULL};
@@ -166,7 +169,7 @@ static int parse_args(int argc, char *argv[]) {
 	while((ch = getopt(argc,argv,"i:p:l:"))!= -1){
 		switch(ch){
 			case 'i':
-				ip = optarg;
+				strcpy(ip, optarg);
 				break;
 			case 'p':
 				port = atoi(optarg);
@@ -225,6 +228,8 @@ static int write_pid() {
 	
 	return 0;
 }
+
+
 void timerout_cb(struct timer *t) {
 	log_info("[%s] %d : %p", __func__, __LINE__, t);
 }
@@ -240,8 +245,8 @@ void database_init() {
 			//.areatype = 0,
 			.key = "",
 			.dev_number = "",
-			.ip = "192.168.0.6",
-			.mac = "40f2e92b6622",
+			//.ip = ip,
+			//.mac = mac[0],
 			.model = "dusun",
 			.sysversion = "1.0.0",
 			.appversion = "1.0.0",
@@ -251,12 +256,18 @@ void database_init() {
 			.lurumode		= 0,
 		},
 	};
+	strcpy(trbasic.basic.ip, ip);
+	strcpy(trbasic.basic.mac, mac);
 
 	ds_init(dbpath, 0, &trbasic);
 }
 
 static void run_main() {
 	log_info("[%s] %d", __func__, __LINE__);
+
+	//read_ip();
+	platform_get_hw_id(mac, sizeof(mac));
+	platform_get_ip("eth6", ip, sizeof(ip));
 
 	struct timer tr;
 	timer_init(&tr, timerout_cb);
@@ -610,4 +621,5 @@ static void db_test() {
 	ds_free();
 }
 #endif
+
 

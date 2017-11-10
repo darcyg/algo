@@ -770,7 +770,7 @@ int ds_update_record(const char *tblname, stTableRecord_t *record, const char *w
 	char buf[512];
 	SPRINTF(buf, to->update, tblname, record);
 
-	char wbuf[256];
+	char wbuf[512];
 	va_list ap;
 	va_start(ap, where);
 	vsprintf(wbuf, where, ap);
@@ -794,7 +794,7 @@ int ds_update_record_simple(const char *tblname, const char *set_and_where, ...)
 		return -1;
 	}
 
-	char wbuf[256];
+	char wbuf[512];
 	va_list ap;
 	va_start(ap, set_and_where);
 	vsprintf(wbuf, set_and_where, ap);
@@ -821,7 +821,7 @@ int ds_delete_record(const char *tblname, const char *where, ...) {
 	char buf[512];
 	sprintf(buf, to->remove, tblname);
 
-	char wbuf[256];
+	char wbuf[512];
 	va_list ap;
 	va_start(ap, where);
 	vsprintf(wbuf, where, ap);
@@ -853,7 +853,7 @@ int ds_search_record(const char *tblname,
 	char buf[512];
 	sprintf(buf, to->search, tblname);
 
-	char wbuf[256];
+	char wbuf[512];
 	va_list ap;
 	va_start(ap, where);
 	vsprintf(wbuf, where, ap);
@@ -890,7 +890,7 @@ int ds_search_record_simple(const char *tblname, stTableRecord_t *tr, const char
 	char buf[512];
 	sprintf(buf, to->search, tblname);
 
-	char wbuf[256];
+	char wbuf[512];
 	va_list ap;
 	va_start(ap, where);
 	vsprintf(wbuf, where, ap);

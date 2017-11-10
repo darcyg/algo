@@ -71,5 +71,6 @@ enum {
 
 
 void task_handler_task(stTask_t *t, stTaskHandler_t *th, int hcnt);
+const char *osa_get_error_string(int err);
 
 #endif

@@ -64,6 +64,7 @@ smdsrcs				+= $(ROOTDIR)/src/lockqueue.c
 smdsrcs				+= $(ROOTDIR)/src/list.c
 smdsrcs				+= $(ROOTDIR)/src/mutex.c
 smdsrcs				+= $(ROOTDIR)/src/cond.c
+smdsrcs				+= $(ROOTDIR)/src/platform/system.c
 
 
 smdsrcs				:= $(subst .cpp,.c,$(smdsrcs))

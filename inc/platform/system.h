@@ -24,6 +24,8 @@ int platform_get_mac_addr(struct ether_addr *addr);
  */
 int platform_get_hw_id(char *buf, size_t size);
 
+int platform_get_ip(const char *ethx, char *buf, size_t size);
+
 /*
  * Perform any actions needed to factory reset the system.  This is invoked
  * after devd has performed all operations needed to factory reset Ayla modules.
