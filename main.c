@@ -66,6 +66,7 @@ static int  port = 80;
 static int ds_child_died = 0;
 static struct timer_head th = {.first = NULL};
 static int loglevel = 0;
+static char version_str[32];
 
 int main(int argc, char *argv[]) {
 
@@ -249,7 +250,7 @@ void database_init() {
 			//.mac = mac[0],
 			.model = "dusun",
 			.sysversion = "1.0.0",
-			.appversion = "1.0.0",
+			.appversion = version_str,
 			.adminname  = "admin",
 			.adminpass	= "123456",
 			.capability = 0,
@@ -268,6 +269,7 @@ static void run_main() {
 	//read_ip();
 	platform_get_hw_id(mac, sizeof(mac));
 	platform_get_ip("eth6", ip, sizeof(ip));
+	sprintf(version_str, "%d.%d.%d.%d", MAJOR, MINOR, PATCH, RELEASE);
 
 	struct timer tr;
 	timer_init(&tr, timerout_cb);
